@@ -1,4 +1,4 @@
 name: MixedAchievements
 version: ${project.version}
-main: ch.mixin.mixedAchievements.MixedAchievements
+main: ch.mixin.mixedAchievements.main.MixedAchievements
 api-version: 1.16
