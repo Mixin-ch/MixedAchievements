@@ -6,8 +6,8 @@ import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
 public class AchievementInventoryLeafElement extends AchievementInventoryElement {
     private AchievementInfo achievementInfo;
 
-    public AchievementInventoryLeafElement(AchievementItemSetup achievementItemSetup) {
-        super(achievementItemSetup);
+    public AchievementInventoryLeafElement(AchievementInventoryElement parent, AchievementItemSetup achievementItemSetup) {
+        super(parent, achievementItemSetup);
     }
 
     public AchievementInfo getAchievementInfo() {

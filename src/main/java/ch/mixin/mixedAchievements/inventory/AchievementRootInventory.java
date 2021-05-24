@@ -1,6 +1,8 @@
 package ch.mixin.mixedAchievements.inventory;
 
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -9,11 +11,11 @@ public class AchievementRootInventory extends AchievementInventoryFolderElement 
     private final TreeMap<String, AchievementInventoryFolderElement> achievementSetInventoryMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public AchievementRootInventory() {
-        super(new AchievementItemSetup(), "Mixed Achievements");
+        super(null, new AchievementItemSetup(), "Mixed Achievements");
     }
 
     @Override
-    public void generate() {
+    public Inventory generateInventory(Player player) {
         subAchievementInventoryElementMap = new HashMap<>();
         int slot = 0;
 
@@ -23,7 +25,7 @@ public class AchievementRootInventory extends AchievementInventoryFolderElement 
             slot++;
         }
 
-        super.generate();
+        return super.generateInventory(player);
     }
 
     public TreeMap<String, AchievementInventoryFolderElement> getAchievementSetInventoryMap() {

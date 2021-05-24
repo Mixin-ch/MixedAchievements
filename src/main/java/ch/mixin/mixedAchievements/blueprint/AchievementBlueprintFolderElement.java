@@ -9,6 +9,7 @@ public class AchievementBlueprintFolderElement extends AchievementBlueprintEleme
     public AchievementBlueprintFolderElement(AchievementItemSetup achievementItemSetup, String inventoryName) {
         super(achievementItemSetup);
         this.inventoryName = inventoryName;
+        subAchievementBlueprintElementMap = new HashMap<>();
     }
 
     public String getInventoryName() {

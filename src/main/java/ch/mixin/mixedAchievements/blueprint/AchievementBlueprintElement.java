@@ -3,7 +3,7 @@ package ch.mixin.mixedAchievements.blueprint;
 public abstract class AchievementBlueprintElement {
     protected AchievementItemSetup achievementItemSetup;
 
-    protected AchievementBlueprintElement(AchievementItemSetup achievementItemSetup) {
+    public AchievementBlueprintElement(AchievementItemSetup achievementItemSetup) {
         this.achievementItemSetup = achievementItemSetup;
     }
 

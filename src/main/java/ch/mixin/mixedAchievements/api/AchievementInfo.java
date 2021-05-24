@@ -11,7 +11,7 @@ public class AchievementInfo {
         this.maxPoints = maxPoints;
     }
 
-    public AchievementData getAchievementSetData() {
+    public AchievementData getAchievementData() {
         return achievementData;
     }
 
