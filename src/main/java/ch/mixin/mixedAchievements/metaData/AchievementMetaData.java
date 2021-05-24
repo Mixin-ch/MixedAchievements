@@ -3,13 +3,13 @@ package ch.mixin.mixedAchievements.metaData;
 import java.util.TreeMap;
 
 public class AchievementMetaData {
-    private TreeMap<String, AchievementData> achievementDataMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private TreeMap<String, AchievementSetData> achievementSetDataMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public TreeMap<String, AchievementData> getAchievementDataMap() {
-        return achievementDataMap;
+    public TreeMap<String, AchievementSetData> getAchievementSetDataMap() {
+        return achievementSetDataMap;
     }
 
-    public void setAchievementDataMap(TreeMap<String, AchievementData> achievementDataMap) {
-        this.achievementDataMap = achievementDataMap;
+    public void setAchievementSetDataMap(TreeMap<String, AchievementSetData> achievementSetDataMap) {
+        this.achievementSetDataMap = achievementSetDataMap;
     }
 }

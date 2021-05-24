@@ -3,6 +3,7 @@ package ch.mixin.mixedAchievements.main;
 import ch.mixin.mixedAchievements.api.AchievementApi;
 import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementSetBlueprint;
+import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.metaData.AchievementMetaData;
 import com.google.gson.Gson;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +21,7 @@ public final class MixedAchievements extends JavaPlugin {
     private File metaDataFile;
     private AchievementMetaData achievementMetaData;
     private AchievementManager achievementManager;
+    private AchievementInventoryManager achievementInventoryManager;
 
     @Override
     public void onEnable() {
@@ -42,7 +44,8 @@ public final class MixedAchievements extends JavaPlugin {
         rootDirectoryPath = decodedPath.substring(0, decodedPath.lastIndexOf("/"));
         pluginName = getDescription().getName();
         initializeMetaData();
-        achievementManager = new AchievementManager(this, achievementMetaData);
+        achievementInventoryManager = new AchievementInventoryManager();
+        achievementManager = new AchievementManager(this, achievementMetaData, achievementInventoryManager);
     }
 
     private void initializeMetaData() {
