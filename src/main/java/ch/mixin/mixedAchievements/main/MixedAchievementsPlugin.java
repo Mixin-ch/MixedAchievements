@@ -1,13 +1,13 @@
 package ch.mixin.mixedAchievements.main;
 
-import ch.mixin.mixedAchievements.eventListener.EventListenerInitializer;
 import ch.mixin.mixedAchievements.api.AchievementApi;
 import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementSetBlueprint;
 import ch.mixin.mixedAchievements.command.CommandInitializer;
+import ch.mixin.mixedAchievements.customConfig.CustomConfig;
+import ch.mixin.mixedAchievements.eventListener.EventListenerInitializer;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
-import ch.mixin.mixedAchievements.metaData.AchievementMetaData;
-import com.google.gson.Gson;
+import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.naming.ServiceUnavailableException;
@@ -20,16 +20,17 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
     private boolean active = false;
     private String pluginName;
     private String rootDirectoryPath;
-    private File metaDataFile;
-    private AchievementMetaData achievementMetaData;
+    private CustomConfig achievementsConfig;
+    private AchievementDataManager achievementDataManager;
     private AchievementManager achievementManager;
     private AchievementInventoryManager achievementInventoryManager;
 
     @Override
     public void onEnable() {
+        System.out.println(pluginName + " enabling");
         initialize();
         active = true;
-        System.out.println(pluginName + " enabled");
+        System.out.println(pluginName + " successfully enabled");
     }
 
     private void initialize() {
@@ -44,46 +45,20 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
 
         rootDirectoryPath = decodedPath.substring(0, decodedPath.lastIndexOf("/"));
         pluginName = getDescription().getName();
-        initializeMetaData();
+        achievementsConfig = new CustomConfig(this, "achievements");
+        achievementDataManager = new AchievementDataManager(achievementsConfig);
         achievementInventoryManager = new AchievementInventoryManager();
-        achievementManager = new AchievementManager(this, achievementMetaData, achievementInventoryManager);
+        achievementManager = new AchievementManager(this, achievementDataManager, achievementInventoryManager);
         EventListenerInitializer.setupEventListener(this, achievementInventoryManager);
         CommandInitializer.setupCommands(this, achievementInventoryManager);
     }
 
-    private void initializeMetaData() {
-        String metaDataDirectoryPath = rootDirectoryPath + "/" + pluginName;
-        File folder = new File(metaDataDirectoryPath);
-
-        if (!folder.exists() && !folder.mkdirs())
-            throw new RuntimeException("Failed to create Metadata Directory.");
-
-        String metaDataFilePath = metaDataDirectoryPath + "/Metadata.txt";
-        metaDataFile = new File(metaDataFilePath);
-
-        if (!metaDataFile.exists()) {
-            try {
-                if (!metaDataFile.createNewFile())
-                    throw new RuntimeException("Failed to create Metadata File.");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        String jsonString = String.join("\n", readFile(metaDataFile));
-
-        if (jsonString.equals("")) {
-            achievementMetaData = new AchievementMetaData();
-        } else {
-            achievementMetaData = new Gson().fromJson(jsonString, AchievementMetaData.class);
-        }
-    }
-
     @Override
     public void onDisable() {
-        System.out.println(pluginName + " disabled");
+        System.out.println(pluginName + " disabling");
         active = false;
-        writeFile(metaDataFile, new Gson().toJson(achievementMetaData));
+        achievementDataManager.saveToConfig();
+        System.out.println(pluginName + " successfully disabled");
     }
 
     public AchievementApi makeAchievementSet(AchievementSetBlueprint achievementSetBlueprint) throws ServiceUnavailableException {

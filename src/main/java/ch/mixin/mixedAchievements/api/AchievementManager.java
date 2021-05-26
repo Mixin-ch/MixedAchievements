@@ -10,21 +10,22 @@ import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.inventory.AchievementRootInventory;
 import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 import ch.mixin.mixedAchievements.metaData.AchievementData;
-import ch.mixin.mixedAchievements.metaData.AchievementMetaData;
+import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
+import ch.mixin.mixedAchievements.metaData.AchievementDataRoot;
 import ch.mixin.mixedAchievements.metaData.AchievementSetData;
 
 import java.util.TreeMap;
 
 public class AchievementManager {
     private final MixedAchievementsPlugin plugin;
-    private final AchievementMetaData achievementMetaData;
+    private final AchievementDataManager achievementDataManager;
     private final AchievementInventoryManager achievementInventoryManager;
 
     private final TreeMap<String, AchievementSetInfo> achievementSetInfoMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public AchievementManager(MixedAchievementsPlugin plugin, AchievementMetaData achievementMetaData, AchievementInventoryManager achievementInventoryManager) {
+    public AchievementManager(MixedAchievementsPlugin plugin, AchievementDataManager achievementDataManager, AchievementInventoryManager achievementInventoryManager) {
         this.plugin = plugin;
-        this.achievementMetaData = achievementMetaData;
+        this.achievementDataManager = achievementDataManager;
         this.achievementInventoryManager = achievementInventoryManager;
     }
 
@@ -66,11 +67,12 @@ public class AchievementManager {
 
     private void makeAchievementSet(AchievementBlueprintLeafElement achievementBlueprintLeafElement, AchievementSetInfo achievementSetInfo, AchievementInventoryLeafElement achievementInventoryLeafElement, String setName) {
         String achievementId = achievementBlueprintLeafElement.getAchievementId();
-        AchievementSetData achievementSetData = achievementMetaData.getAchievementSetDataMap().get(setName);
+        AchievementDataRoot achievementDataRoot = achievementDataManager.getAchievementDataRoot();
+        AchievementSetData achievementSetData = achievementDataRoot.getAchievementSetDataMap().get(setName);
 
         if (achievementSetData == null) {
             achievementSetData = new AchievementSetData();
-            achievementMetaData.getAchievementSetDataMap().put(setName, achievementSetData);
+            achievementDataRoot.getAchievementSetDataMap().put(setName, achievementSetData);
         }
 
         AchievementData achievementData = achievementSetData.getAchievementDataMap().get(achievementId);
