@@ -1,6 +1,5 @@
-package ch.mixin.eventListener;
+package ch.mixin.mixedAchievements.eventListener;
 
-import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 

@@ -1,8 +1,8 @@
 name: MixedAchievements
 version: ${project.version}
-main: ch.mixin.mixedAchievements.main.MixedAchievements
+main: ch.mixin.mixedAchievements.main.MixedAchievementsPlugin
 api-version: 1.16
 
 commands:
-  mx:
-    description: The Root Command for MixedAchievments with Prefix mx.
+  mx-ac:
+    description: The Root Command for MixedAchievments with Prefix mx-ac.

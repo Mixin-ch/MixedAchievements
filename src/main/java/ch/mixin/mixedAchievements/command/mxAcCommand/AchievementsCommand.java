@@ -1,4 +1,4 @@
-package ch.mixin.mixedAchievements.command.mxCommand;
+package ch.mixin.mixedAchievements.command.mxAcCommand;
 
 import ch.mixin.mixedAchievements.command.SubCommand;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
