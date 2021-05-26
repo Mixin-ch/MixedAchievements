@@ -8,7 +8,7 @@ import ch.mixin.mixedAchievements.inventory.AchievementInventoryFolderElement;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryLeafElement;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.inventory.AchievementRootInventory;
-import ch.mixin.mixedAchievements.main.MixedAchievements;
+import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 import ch.mixin.mixedAchievements.metaData.AchievementData;
 import ch.mixin.mixedAchievements.metaData.AchievementMetaData;
 import ch.mixin.mixedAchievements.metaData.AchievementSetData;
@@ -16,13 +16,13 @@ import ch.mixin.mixedAchievements.metaData.AchievementSetData;
 import java.util.TreeMap;
 
 public class AchievementManager {
-    private final MixedAchievements plugin;
+    private final MixedAchievementsPlugin plugin;
     private final AchievementMetaData achievementMetaData;
     private final AchievementInventoryManager achievementInventoryManager;
 
     private final TreeMap<String, AchievementSetInfo> achievementSetInfoMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public AchievementManager(MixedAchievements plugin, AchievementMetaData achievementMetaData, AchievementInventoryManager achievementInventoryManager) {
+    public AchievementManager(MixedAchievementsPlugin plugin, AchievementMetaData achievementMetaData, AchievementInventoryManager achievementInventoryManager) {
         this.plugin = plugin;
         this.achievementMetaData = achievementMetaData;
         this.achievementInventoryManager = achievementInventoryManager;

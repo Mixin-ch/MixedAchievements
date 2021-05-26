@@ -1,8 +1,10 @@
 package ch.mixin.mixedAchievements.main;
 
+import ch.mixin.eventListener.EventListenerInitializer;
 import ch.mixin.mixedAchievements.api.AchievementApi;
 import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementSetBlueprint;
+import ch.mixin.mixedAchievements.command.CommandInitializer;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.metaData.AchievementMetaData;
 import com.google.gson.Gson;
@@ -14,7 +16,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public final class MixedAchievements extends JavaPlugin {
+public final class MixedAchievementsPlugin extends JavaPlugin {
     private boolean active = false;
     private String pluginName;
     private String rootDirectoryPath;
@@ -32,7 +34,7 @@ public final class MixedAchievements extends JavaPlugin {
     }
 
     private void initialize() {
-        String urlPath = MixedAchievements.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String urlPath = MixedAchievementsPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         String decodedPath = null;
 
         try {
@@ -46,6 +48,8 @@ public final class MixedAchievements extends JavaPlugin {
         initializeMetaData();
         achievementInventoryManager = new AchievementInventoryManager();
         achievementManager = new AchievementManager(this, achievementMetaData, achievementInventoryManager);
+        EventListenerInitializer.setupEventListener(this, achievementInventoryManager);
+        CommandInitializer.setupCommands(this, achievementInventoryManager);
     }
 
     private void initializeMetaData() {
@@ -113,5 +117,13 @@ public final class MixedAchievements extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public String getPluginName() {
+        return pluginName;
     }
 }
