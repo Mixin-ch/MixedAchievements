@@ -1,6 +1,7 @@
 package ch.mixin.mixedAchievements.inventory;
 
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -17,7 +18,7 @@ public class AchievementInventoryManager {
 
     static {
         CancelItem.setMaterial(Material.BARRIER);
-        CancelItem.setName("Back");
+        CancelItem.setName(ChatColor.of("#FF7F7F") + "Back");
         CancelItem.setAmount(1);
     }
 

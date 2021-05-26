@@ -30,7 +30,6 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         initialize();
         active = true;
         System.out.println(pluginName + " enabled");
-//        String msg = ChatColor.of("#FFFF") + "hello";
     }
 
     private void initialize() {
