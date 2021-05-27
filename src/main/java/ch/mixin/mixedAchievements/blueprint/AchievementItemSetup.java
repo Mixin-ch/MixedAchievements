@@ -7,6 +7,12 @@ public class AchievementItemSetup {
     private String name;
     private int amount;
 
+    public AchievementItemSetup(Material material, String name, int amount) {
+        this.material = material;
+        this.name = name;
+        this.amount = amount;
+    }
+
     public AchievementItemSetup() {
         this.material = Material.AIR;
         this.name = "";

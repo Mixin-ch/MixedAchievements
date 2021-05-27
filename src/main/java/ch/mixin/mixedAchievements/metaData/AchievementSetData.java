@@ -21,7 +21,7 @@ public class AchievementSetData {
             if (achievementDataConfig == null)
                 continue;
 
-            achievementDataMap.put(achievementName, new AchievementData(achievementDataConfig));
+            achievementDataMap.put(achievementName, new AchievementData(this, achievementDataConfig));
         }
     }
 

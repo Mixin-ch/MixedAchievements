@@ -5,12 +5,15 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.TreeMap;
 
 public class AchievementData {
+    private final AchievementSetData achievementSetData;
     private TreeMap<String, PlayerAchievementData> playerAchievementDataMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public AchievementData() {
+    public AchievementData(AchievementSetData achievementSetData) {
+        this.achievementSetData = achievementSetData;
     }
 
-    public AchievementData(ConfigurationSection achievementDataConfig) {
+    public AchievementData(AchievementSetData achievementSetData, ConfigurationSection achievementDataConfig) {
+        this.achievementSetData = achievementSetData;
         loadFromConfig(achievementDataConfig);
     }
 
@@ -31,6 +34,15 @@ public class AchievementData {
             ConfigurationSection playerAchievementDataConfig = achievementDataConfig.createSection(playerId);
             playerAchievementData.saveToConfig(playerAchievementDataConfig);
         }
+    }
+
+    public String getAchievementId() {
+        for (String setName : achievementSetData.getAchievementDataMap().keySet()) {
+            if (achievementSetData.getAchievementDataMap().get(setName) == this)
+                return setName;
+        }
+
+        return null;
     }
 
     public TreeMap<String, PlayerAchievementData> getPlayerAchievementDataMap() {

@@ -28,7 +28,6 @@ public class AchievementManager {
         this.achievementInventoryManager = achievementInventoryManager;
     }
 
-
     public void makeAchievementSet(AchievementSetBlueprint achievementSetBlueprint) {
         String setName = achievementSetBlueprint.getSetName();
 
@@ -39,32 +38,32 @@ public class AchievementManager {
         achievementSetInfoMap.put(setName, achievementSetInfo);
 
         AchievementRootInventory achievementRootInventory = achievementInventoryManager.getAchievementRootInventory();
-        AchievementInventoryFolderElement achievementInventoryFolderElement = new AchievementInventoryFolderElement(achievementRootInventory, achievementSetBlueprint.getAchievementItemSetup(), achievementSetBlueprint.getSetName());
+        AchievementInventoryFolderElement achievementInventoryFolderElement = new AchievementInventoryFolderElement(this, achievementRootInventory, achievementSetBlueprint.getAchievementItemSetup(), achievementSetBlueprint.getSetName());
         achievementRootInventory.getAchievementSetInventoryMap().put(setName, achievementInventoryFolderElement);
 
-        makeAchievementSet(achievementSetBlueprint, achievementSetInfo, achievementInventoryFolderElement, setName);
+        makeAchievementSetFromFolder(achievementSetBlueprint, achievementSetInfo, achievementInventoryFolderElement, setName);
         achievementInventoryManager.reload();
     }
 
-    private void makeAchievementSet(AchievementBlueprintFolderElement achievementBlueprintFolderElement, AchievementSetInfo achievementSetInfo, AchievementInventoryFolderElement achievementInventoryFolderElement, String setName) {
+    private void makeAchievementSetFromFolder(AchievementBlueprintFolderElement achievementBlueprintFolderElement, AchievementSetInfo achievementSetInfo, AchievementInventoryFolderElement achievementInventoryFolderElement, String setName) {
         for (int slot : achievementBlueprintFolderElement.getSubAchievementBlueprintElementMap().keySet()) {
             AchievementBlueprintElement blueprintElement = achievementBlueprintFolderElement.getSubAchievementBlueprintElementMap().get(slot);
 
             if (blueprintElement instanceof AchievementBlueprintFolderElement) {
                 AchievementBlueprintFolderElement subBlueprintFolder = (AchievementBlueprintFolderElement) blueprintElement;
-                AchievementInventoryFolderElement subInventoryFolder = new AchievementInventoryFolderElement(achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup(), subBlueprintFolder.getInventoryName());
+                AchievementInventoryFolderElement subInventoryFolder = new AchievementInventoryFolderElement(this, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup(), subBlueprintFolder.getInventoryName());
                 achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, subInventoryFolder);
-                makeAchievementSet(subBlueprintFolder, achievementSetInfo, subInventoryFolder, setName);
+                makeAchievementSetFromFolder(subBlueprintFolder, achievementSetInfo, subInventoryFolder, setName);
             } else {
                 AchievementBlueprintLeafElement blueprintLeaf = (AchievementBlueprintLeafElement) blueprintElement;
-                AchievementInventoryLeafElement inventoryLeaf = new AchievementInventoryLeafElement(achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup());
+                AchievementInventoryLeafElement inventoryLeaf = new AchievementInventoryLeafElement(this, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup());
                 achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, inventoryLeaf);
-                makeAchievementSet(blueprintLeaf, achievementSetInfo, inventoryLeaf, setName);
+                makeAchievementSetFromLeaf(blueprintLeaf, achievementSetInfo, inventoryLeaf, setName);
             }
         }
     }
 
-    private void makeAchievementSet(AchievementBlueprintLeafElement achievementBlueprintLeafElement, AchievementSetInfo achievementSetInfo, AchievementInventoryLeafElement achievementInventoryLeafElement, String setName) {
+    private void makeAchievementSetFromLeaf(AchievementBlueprintLeafElement achievementBlueprintLeafElement, AchievementSetInfo achievementSetInfo, AchievementInventoryLeafElement achievementInventoryLeafElement, String setName) {
         String achievementId = achievementBlueprintLeafElement.getAchievementId();
         AchievementDataRoot achievementDataRoot = achievementDataManager.getAchievementDataRoot();
         AchievementSetData achievementSetData = achievementDataRoot.getAchievementSetDataMap().get(setName);
@@ -77,7 +76,7 @@ public class AchievementManager {
         AchievementData achievementData = achievementSetData.getAchievementDataMap().get(achievementId);
 
         if (achievementData == null) {
-            achievementData = new AchievementData();
+            achievementData = new AchievementData(achievementSetData);
             achievementSetData.getAchievementDataMap().put(achievementId, achievementData);
         }
 
@@ -164,7 +163,7 @@ public class AchievementManager {
         return achievementInfo;
     }
 
-    private PlayerAchievementData fetchPlayerAchievementData(String setName, String achievementId, UUID playerId) throws IllegalArgumentException {
+    public PlayerAchievementData fetchPlayerAchievementData(String setName, String achievementId, UUID playerId) throws IllegalArgumentException {
         AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
         AchievementData achievementData = achievementInfo.getAchievementData();
         PlayerAchievementData playerAchievementData = achievementData.getPlayerAchievementDataMap().get(playerId.toString());

@@ -1,9 +1,8 @@
 package ch.mixin.mixedAchievements.inventory;
 
 import ch.mixin.mixedAchievements.api.AchievementInfo;
-import ch.mixin.mixedAchievements.blueprint.AchievementBlueprintFolderElement;
+import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
-import ch.mixin.mixedAchievements.metaData.AchievementData;
 import ch.mixin.mixedAchievements.metaData.PlayerAchievementData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,10 +20,18 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
     protected HashMap<Integer, AchievementInventoryElement> subAchievementInventoryElementMap;
     protected String inventoryName;
 
-    public AchievementInventoryFolderElement(AchievementInventoryElement parent, AchievementItemSetup achievementItemSetup, String inventoryName) {
-        super(parent, achievementItemSetup);
+    public AchievementInventoryFolderElement(AchievementManager achievementManager, AchievementInventoryFolderElement parent, AchievementItemSetup achievementItemSetup, String inventoryName) {
+        super(achievementManager, parent, achievementItemSetup);
         this.inventoryName = inventoryName;
         subAchievementInventoryElementMap = new HashMap<>();
+    }
+
+    protected String getSetName() {
+        return parent.getSetName(this);
+    }
+
+    protected String getSetName(AchievementInventoryFolderElement achievementInventoryFolderElement) {
+        return parent.getSetName(this);
     }
 
     public Inventory generateInventory(Player player) {
@@ -62,7 +69,9 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
     private ItemStack makeItemLeafSlot(AchievementInventoryLeafElement aile, Player player) {
         AchievementItemSetup ais = aile.getAchievementItemSetup();
         AchievementInfo ai = aile.getAchievementInfo();
-        PlayerAchievementData pad = ai.getAchievementData().getPlayerAchievementDataMap().get(player.getUniqueId().toString());
+        String setName = getSetName();
+        String achievementId = ai.getAchievementData().getAchievementId();
+        PlayerAchievementData pad = achievementManager.fetchPlayerAchievementData(setName, achievementId, player.getUniqueId());
 
         ItemStack item = new ItemStack(ais.getMaterial(), ais.getAmount());
         ItemMeta meta = item.getItemMeta();

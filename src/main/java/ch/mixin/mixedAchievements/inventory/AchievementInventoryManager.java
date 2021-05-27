@@ -1,5 +1,6 @@
 package ch.mixin.mixedAchievements.inventory;
 
+import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
@@ -22,19 +23,25 @@ public class AchievementInventoryManager {
         CancelItem.setAmount(1);
     }
 
-    private final AchievementRootInventory achievementRootInventory = new AchievementRootInventory();
+    private boolean active = false;
+    private AchievementManager achievementManager;
+    private AchievementRootInventory achievementRootInventory;
     private final HashMap<UUID, ActiveAchievementInventory> playerActiveInventoryMap = new HashMap<>();
-
 
     public AchievementInventoryManager() {
         reload();
     }
 
-    public AchievementRootInventory getAchievementRootInventory() {
-        return achievementRootInventory;
+    public void initialize(AchievementManager achievementManager) {
+        this.achievementManager = achievementManager;
+        achievementRootInventory = new AchievementRootInventory(achievementManager);
+        active = true;
     }
 
     public void reload() {
+        if (!active)
+            return;
+
         for (ActiveAchievementInventory aai : playerActiveInventoryMap.values()) {
             for (HumanEntity humanEntity : aai.getInventory().getViewers()) {
                 if (humanEntity.getInventory() == aai.getInventory())
@@ -44,6 +51,9 @@ public class AchievementInventoryManager {
     }
 
     public void open(Player player) {
+        if (!active)
+            return;
+
         AchievementInventoryFolderElement aife = achievementRootInventory;
 
         if (achievementRootInventory.getSubAchievementInventoryElementMap().size() == 1) {
@@ -56,6 +66,9 @@ public class AchievementInventoryManager {
     }
 
     public void click(InventoryClickEvent event) {
+        if (!active)
+            return;
+
         Player player = (Player) event.getWhoClicked();
         ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
 
@@ -77,8 +90,10 @@ public class AchievementInventoryManager {
         AchievementInventoryFolderElement newAife;
 
         if (slot == CancelSlot) {
-            if (aife.getParent() == null)
+            if (aife.getParent() == null) {
+                player.closeInventory();
                 return;
+            }
 
             newAife = (AchievementInventoryFolderElement) aife.getParent();
         } else {
@@ -99,6 +114,9 @@ public class AchievementInventoryManager {
     }
 
     public void drag(InventoryDragEvent event) {
+        if (!active)
+            return;
+
         Player player = (Player) event.getWhoClicked();
         ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
 
@@ -116,5 +134,9 @@ public class AchievementInventoryManager {
                 break;
             }
         }
+    }
+
+    public AchievementRootInventory getAchievementRootInventory() {
+        return achievementRootInventory;
     }
 }

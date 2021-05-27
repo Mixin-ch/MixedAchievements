@@ -49,6 +49,7 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         achievementDataManager = new AchievementDataManager(achievementsConfig);
         achievementInventoryManager = new AchievementInventoryManager();
         achievementManager = new AchievementManager(this, achievementDataManager, achievementInventoryManager);
+        achievementInventoryManager.initialize(achievementManager);
         EventListenerInitializer.setupEventListener(this, achievementInventoryManager);
         CommandInitializer.setupCommands(this, achievementInventoryManager);
     }
