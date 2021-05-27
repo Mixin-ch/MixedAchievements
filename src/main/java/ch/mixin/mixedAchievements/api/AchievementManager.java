@@ -9,12 +9,11 @@ import ch.mixin.mixedAchievements.inventory.AchievementInventoryLeafElement;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.inventory.AchievementRootInventory;
 import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
-import ch.mixin.mixedAchievements.metaData.AchievementData;
-import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
-import ch.mixin.mixedAchievements.metaData.AchievementDataRoot;
-import ch.mixin.mixedAchievements.metaData.AchievementSetData;
+import ch.mixin.mixedAchievements.metaData.*;
+import org.bukkit.entity.Player;
 
 import java.util.TreeMap;
+import java.util.UUID;
 
 public class AchievementManager {
     private final MixedAchievementsPlugin plugin;
@@ -82,82 +81,108 @@ public class AchievementManager {
             achievementSetData.getAchievementDataMap().put(achievementId, achievementData);
         }
 
-        AchievementInfo achievementInfo = achievementSetInfo.getAchievementInfoMap().get(setName);
+        AchievementInfo achievementInfo = achievementSetInfo.getAchievementInfoMap().get(achievementId);
 
         if (achievementInfo == null) {
-            achievementInfo = new AchievementInfo(achievementData, achievementBlueprintLeafElement.getMaxPoints());
+            achievementInfo = new AchievementInfo(achievementData, achievementBlueprintLeafElement.getAchievementName(), Math.max(0, achievementBlueprintLeafElement.getMaxPoints()));
             achievementSetInfo.getAchievementInfoMap().put(achievementId, achievementInfo);
         }
 
         achievementInventoryLeafElement.setAchievementInfo(achievementInfo);
     }
 
-//    public void setAchieved(String achievement, UUID playerId, boolean achieved) throws IllegalArgumentException {
-//        PlayerAchievementData playerAchievementData = makePlayerAchievementData(achievement, playerId);
-//
-//        if (!achieved) {
-//            playerAchievementData.setAchieved(false);
-//            return;
-//        }
-//
-//        if (playerAchievementData.isAchieved())
-//            return;
-//
-//        playerAchievementData.setAchieved(true);
-//        achievementUnlocked(achievement, playerId);
-//    }
-//
-//    public void setPoints(String achievement, UUID playerId, int value) throws IllegalArgumentException {
-//        PlayerAchievementData playerAchievementData = makePlayerAchievementData(achievement, playerId);
-//        playerAchievementData.setPoints(value);
-//        checkPointsAchieved(achievement, playerId);
-//    }
-//
-//    public void addPoints(String achievement, UUID playerId, int value) {
-//        PlayerAchievementData playerAchievementData = makePlayerAchievementData(achievement, playerId);
-//        playerAchievementData.setPoints(value + playerAchievementData.getPoints());
-//        checkPointsAchieved(achievement, playerId);
-//    }
-//
-//    public void revalueAchieved(String achievement, UUID playerId) {
-//        PlayerAchievementData playerAchievementData = makePlayerAchievementData(achievement, playerId);
-//        int max = 0; //TODO: Get real max value.
-//        setAchieved(achievement, playerId, playerAchievementData.getPoints() < max);
-//    }
-//
-//    private void checkPointsAchieved(String achievement, UUID playerId) {
-//        PlayerAchievementData playerAchievementData = makePlayerAchievementData(achievement, playerId);
-//
-//        if (playerAchievementData.isAchieved())
-//            return;
-//
-//        int max = 0; //TODO: Get real max value.
-//        setAchieved(achievement, playerId, playerAchievementData.getPoints() < max);
-//    }
-//
-//    private PlayerAchievementData makePlayerAchievementData(String achievement, UUID playerId) throws IllegalArgumentException {
-//        AchievementInfo achievementInfo = achievementInfoMap.get(achievement);
-//
-//        if (achievementInfo == null)
-//            throw new IllegalArgumentException("Achievement key not found.");
-//
-//        AchievementData achievementData = achievementInfo.getAchievementSetData();
-//        PlayerAchievementData playerAchievementData = achievementData.getPlayerAchievementDataMap().get(playerId.toString());
-//
-//        if (playerAchievementData == null) {
-//            playerAchievementData = new PlayerAchievementData();
-//            achievementData.getPlayerAchievementDataMap().put(playerId.toString(), playerAchievementData);
-//        }
-//
-//        return playerAchievementData;
-//    }
-//
-//    private void achievementUnlocked(String achievement, UUID playerId) {
-//        Player player = plugin.getServer().getPlayer(playerId);
-//
-//        if (player == null)
-//            return;
-//
-//        player.sendMessage("Achievement unlocked: " + achievement);
-//    }
+    public void setAchieved(String setName, String achievementId, UUID playerId, boolean achieved) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+
+        if (!achieved) {
+            playerAchievementData.setAchieved(false);
+            return;
+        }
+
+        if (playerAchievementData.isAchieved())
+            return;
+
+        playerAchievementData.setAchieved(true);
+        achievementUnlocked(fetchAchievementInfo(setName, achievementId), playerId);
+    }
+
+    public boolean getAchieved(String setName, String achievementId, UUID playerId) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+        return playerAchievementData.isAchieved();
+    }
+
+
+    public void setPoints(String setName, String achievementId, UUID playerId, int value) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
+        int maxPoints = achievementInfo.getMaxPoints();
+        int points = Math.min(maxPoints, value);
+        playerAchievementData.setPoints(points);
+        checkPointsAchieved(setName, achievementId, playerId);
+    }
+
+    public void addPoints(String setName, String achievementId, UUID playerId, int value) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
+        int maxPoints = achievementInfo.getMaxPoints();
+        int points = Math.min(maxPoints, playerAchievementData.getPoints() + value);
+        playerAchievementData.setPoints(points);
+        checkPointsAchieved(setName, achievementId, playerId);
+    }
+
+    public void revalueAchieved(String setName, String achievementId, UUID playerId) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
+        int maxPoints = achievementInfo.getMaxPoints();
+
+        if (maxPoints <= 0)
+            return;
+
+        setAchieved(setName, achievementId, playerId, playerAchievementData.getPoints() < maxPoints);
+    }
+
+    private void checkPointsAchieved(String setName, String achievementId, UUID playerId) {
+        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+
+        if (playerAchievementData.isAchieved())
+            return;
+
+        revalueAchieved(setName, achievementId, playerId);
+    }
+
+    private AchievementInfo fetchAchievementInfo(String setName, String achievementId) {
+        AchievementSetInfo achievementSetInfo = achievementSetInfoMap.get(setName);
+
+        if (achievementSetInfo == null)
+            throw new IllegalArgumentException("Set key not found.");
+
+        AchievementInfo achievementInfo = achievementSetInfo.getAchievementInfoMap().get(achievementId);
+
+        if (achievementInfo == null)
+            throw new IllegalArgumentException("Achievement key not found.");
+
+        return achievementInfo;
+    }
+
+    private PlayerAchievementData fetchPlayerAchievementData(String setName, String achievementId, UUID playerId) throws IllegalArgumentException {
+        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
+        AchievementData achievementData = achievementInfo.getAchievementData();
+        PlayerAchievementData playerAchievementData = achievementData.getPlayerAchievementDataMap().get(playerId.toString());
+
+        if (playerAchievementData == null) {
+            playerAchievementData = new PlayerAchievementData();
+            achievementData.getPlayerAchievementDataMap().put(playerId.toString(), playerAchievementData);
+        }
+
+        return playerAchievementData;
+    }
+
+    private void achievementUnlocked(AchievementInfo achievementInfo, UUID playerId) {
+        Player player = plugin.getServer().getPlayer(playerId);
+
+        if (player == null)
+            return;
+
+        player.sendMessage("Achievement unlocked: " + achievementInfo.getAchievementName());
+    }
 }
