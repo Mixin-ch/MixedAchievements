@@ -83,19 +83,20 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
             if (pad.isAchieved()) {
                 meta.addEnchant(Enchantment.LOYALTY, 1, true);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                Lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + ChatColor.ITALIC + "Unlocked");
+                Lore.add(AchievementInventoryManager.UnlockedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Unlocked");
 
                 if (ai.getMaxPoints() > 0) {
-                    Lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + ChatColor.ITALIC + pad.getPoints() + "/" + ai.getMaxPoints());
+                    Lore.add(AchievementInventoryManager.UnlockedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + pad.getPoints() + "/" + ai.getMaxPoints());
                 }
             } else {
-                Lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + ChatColor.ITALIC + "Locked");
+                Lore.add(AchievementInventoryManager.LockedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Locked");
 
                 if (ai.getMaxPoints() > 0) {
-                    Lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + ChatColor.ITALIC + pad.getPoints() + "/" + ai.getMaxPoints());
+                    Lore.add(AchievementInventoryManager.LockedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + pad.getPoints() + "/" + ai.getMaxPoints());
                 }
             }
 
+            Lore.addAll(ais.getLoreList());
             meta.setLore(Lore);
             item.setItemMeta(meta);
         }
@@ -111,7 +112,8 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
         if (meta != null) {
             meta.setDisplayName(ais.getName());
             ArrayList<String> Lore = new ArrayList<>();
-            Lore.add(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + ChatColor.ITALIC + "Category");
+            Lore.add(AchievementInventoryManager.CategoryColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Category");
+            Lore.addAll(ais.getLoreList());
             meta.setLore(Lore);
             item.setItemMeta(meta);
         }

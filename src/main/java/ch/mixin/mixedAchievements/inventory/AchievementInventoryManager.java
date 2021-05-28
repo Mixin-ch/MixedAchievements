@@ -16,6 +16,9 @@ import java.util.UUID;
 public class AchievementInventoryManager {
     public static int CancelSlot = 8;
     public static AchievementItemSetup CancelItem = new AchievementItemSetup();
+    public static ChatColor CategoryColor = ChatColor.of("#7F7FFF");
+    public static ChatColor UnlockedColor = ChatColor.of("#FFBF00");
+    public static ChatColor LockedColor = ChatColor.of("#7F7F7F");
 
     static {
         CancelItem.setMaterial(Material.BARRIER);
