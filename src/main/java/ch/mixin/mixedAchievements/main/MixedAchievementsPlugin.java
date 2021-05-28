@@ -45,7 +45,7 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         pluginName = getDescription().getName();
         achievementsConfig = new CustomConfig(this, "achievements");
 
-        mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor();
+        mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor(this);
         mixedAchievementsManagerAccessor.setAchievementManager(new AchievementManager(mixedAchievementsManagerAccessor));
         mixedAchievementsManagerAccessor.setAchievementDataManager(new AchievementDataManager(mixedAchievementsManagerAccessor, achievementsConfig));
         mixedAchievementsManagerAccessor.setAchievementInventoryManager(new AchievementInventoryManager(mixedAchievementsManagerAccessor));

@@ -5,17 +5,17 @@ import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
 
 public class MixedAchievementsManagerAccessor {
-    private MixedAchievementsPlugin plugin;
+    private final MixedAchievementsPlugin plugin;
     private AchievementManager achievementManager;
     private AchievementDataManager achievementDataManager;
     private AchievementInventoryManager achievementInventoryManager;
 
-    public MixedAchievementsPlugin getPlugin() {
-        return plugin;
+    public MixedAchievementsManagerAccessor(MixedAchievementsPlugin plugin) {
+        this.plugin = plugin;
     }
 
-    public void setPlugin(MixedAchievementsPlugin plugin) {
-        this.plugin = plugin;
+    public MixedAchievementsPlugin getPlugin() {
+        return plugin;
     }
 
     public AchievementManager getAchievementManager() {
