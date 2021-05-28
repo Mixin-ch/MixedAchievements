@@ -1,7 +1,7 @@
 package ch.mixin.mixedAchievements.inventory;
 
-import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -23,25 +23,17 @@ public class AchievementInventoryManager {
         CancelItem.setAmount(1);
     }
 
-    private boolean active = false;
-    private AchievementManager achievementManager;
-    private AchievementRootInventory achievementRootInventory;
+    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    private final AchievementRootInventory achievementRootInventory;
     private final HashMap<UUID, ActiveAchievementInventory> playerActiveInventoryMap = new HashMap<>();
 
-    public AchievementInventoryManager() {
+    public AchievementInventoryManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
+        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
+        achievementRootInventory = new AchievementRootInventory(mixedAchievementsManagerAccessor);
         reload();
     }
 
-    public void initialize(AchievementManager achievementManager) {
-        this.achievementManager = achievementManager;
-        achievementRootInventory = new AchievementRootInventory(achievementManager);
-        active = true;
-    }
-
     public void reload() {
-        if (!active)
-            return;
-
         for (ActiveAchievementInventory aai : playerActiveInventoryMap.values()) {
             for (HumanEntity humanEntity : aai.getInventory().getViewers()) {
                 if (humanEntity.getInventory() == aai.getInventory())
@@ -51,9 +43,6 @@ public class AchievementInventoryManager {
     }
 
     public void open(Player player) {
-        if (!active)
-            return;
-
         AchievementInventoryFolderElement aife = achievementRootInventory;
 
         if (achievementRootInventory.getSubAchievementInventoryElementMap().size() == 1) {
@@ -66,9 +55,6 @@ public class AchievementInventoryManager {
     }
 
     public void click(InventoryClickEvent event) {
-        if (!active)
-            return;
-
         Player player = (Player) event.getWhoClicked();
         ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
 
@@ -114,9 +100,6 @@ public class AchievementInventoryManager {
     }
 
     public void drag(InventoryDragEvent event) {
-        if (!active)
-            return;
-
         Player player = (Player) event.getWhoClicked();
         ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
 

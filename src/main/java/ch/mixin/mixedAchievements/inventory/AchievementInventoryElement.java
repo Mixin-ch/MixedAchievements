@@ -1,15 +1,15 @@
 package ch.mixin.mixedAchievements.inventory;
 
-import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 
 public abstract class AchievementInventoryElement {
-    protected final AchievementManager achievementManager;
+    protected final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
     protected final AchievementInventoryFolderElement parent;
     protected final AchievementItemSetup achievementItemSetup;
 
-    public AchievementInventoryElement(AchievementManager achievementManager, AchievementInventoryFolderElement parent, AchievementItemSetup achievementItemSetup) {
-        this.achievementManager = achievementManager;
+    public AchievementInventoryElement(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, AchievementInventoryFolderElement parent, AchievementItemSetup achievementItemSetup) {
+        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
         this.parent = parent;
         this.achievementItemSetup = achievementItemSetup;
     }

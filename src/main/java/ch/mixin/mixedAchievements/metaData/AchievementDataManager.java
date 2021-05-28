@@ -1,13 +1,16 @@
 package ch.mixin.mixedAchievements.metaData;
 
 import ch.mixin.mixedAchievements.customConfig.CustomConfig;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import org.bukkit.configuration.ConfigurationSection;
 
 public class AchievementDataManager {
+    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
     private final CustomConfig achievementsConfig;
     private AchievementDataRoot achievementDataRoot = new AchievementDataRoot();
 
-    public AchievementDataManager(CustomConfig achievementsConfig) {
+    public AchievementDataManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, CustomConfig achievementsConfig) {
+        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
         this.achievementsConfig = achievementsConfig;
         loadFromConfig();
         saveToConfig();

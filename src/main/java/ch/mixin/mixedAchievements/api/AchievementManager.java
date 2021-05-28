@@ -8,27 +8,28 @@ import ch.mixin.mixedAchievements.inventory.AchievementInventoryFolderElement;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryLeafElement;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.inventory.AchievementRootInventory;
-import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
-import ch.mixin.mixedAchievements.metaData.*;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.metaData.AchievementData;
+import ch.mixin.mixedAchievements.metaData.AchievementDataRoot;
+import ch.mixin.mixedAchievements.metaData.AchievementSetData;
+import ch.mixin.mixedAchievements.metaData.PlayerAchievementData;
 import org.bukkit.entity.Player;
 
 import java.util.TreeMap;
 import java.util.UUID;
 
 public class AchievementManager {
-    private final MixedAchievementsPlugin plugin;
-    private final AchievementDataManager achievementDataManager;
-    private final AchievementInventoryManager achievementInventoryManager;
+    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
 
     private final TreeMap<String, AchievementSetInfo> achievementSetInfoMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public AchievementManager(MixedAchievementsPlugin plugin, AchievementDataManager achievementDataManager, AchievementInventoryManager achievementInventoryManager) {
-        this.plugin = plugin;
-        this.achievementDataManager = achievementDataManager;
-        this.achievementInventoryManager = achievementInventoryManager;
+    public AchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
+        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
     }
 
+
     public void makeAchievementSet(AchievementSetBlueprint achievementSetBlueprint) {
+        AchievementInventoryManager achievementInventoryManager = mixedAchievementsManagerAccessor.getAchievementInventoryManager();
         String setName = achievementSetBlueprint.getSetName();
 
         if (achievementSetInfoMap.containsKey(setName))
@@ -38,7 +39,7 @@ public class AchievementManager {
         achievementSetInfoMap.put(setName, achievementSetInfo);
 
         AchievementRootInventory achievementRootInventory = achievementInventoryManager.getAchievementRootInventory();
-        AchievementInventoryFolderElement achievementInventoryFolderElement = new AchievementInventoryFolderElement(this, achievementRootInventory, achievementSetBlueprint.getAchievementItemSetup(), achievementSetBlueprint.getSetName());
+        AchievementInventoryFolderElement achievementInventoryFolderElement = new AchievementInventoryFolderElement(mixedAchievementsManagerAccessor, achievementRootInventory, achievementSetBlueprint.getAchievementItemSetup(), achievementSetBlueprint.getSetName());
         achievementRootInventory.getAchievementSetInventoryMap().put(setName, achievementInventoryFolderElement);
 
         makeAchievementSetFromFolder(achievementSetBlueprint, achievementSetInfo, achievementInventoryFolderElement, setName);
@@ -51,12 +52,12 @@ public class AchievementManager {
 
             if (blueprintElement instanceof AchievementBlueprintFolderElement) {
                 AchievementBlueprintFolderElement subBlueprintFolder = (AchievementBlueprintFolderElement) blueprintElement;
-                AchievementInventoryFolderElement subInventoryFolder = new AchievementInventoryFolderElement(this, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup(), subBlueprintFolder.getInventoryName());
+                AchievementInventoryFolderElement subInventoryFolder = new AchievementInventoryFolderElement(mixedAchievementsManagerAccessor, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup(), subBlueprintFolder.getInventoryName());
                 achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, subInventoryFolder);
                 makeAchievementSetFromFolder(subBlueprintFolder, achievementSetInfo, subInventoryFolder, setName);
             } else {
                 AchievementBlueprintLeafElement blueprintLeaf = (AchievementBlueprintLeafElement) blueprintElement;
-                AchievementInventoryLeafElement inventoryLeaf = new AchievementInventoryLeafElement(this, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup());
+                AchievementInventoryLeafElement inventoryLeaf = new AchievementInventoryLeafElement(mixedAchievementsManagerAccessor, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup());
                 achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, inventoryLeaf);
                 makeAchievementSetFromLeaf(blueprintLeaf, achievementSetInfo, inventoryLeaf, setName);
             }
@@ -65,7 +66,7 @@ public class AchievementManager {
 
     private void makeAchievementSetFromLeaf(AchievementBlueprintLeafElement achievementBlueprintLeafElement, AchievementSetInfo achievementSetInfo, AchievementInventoryLeafElement achievementInventoryLeafElement, String setName) {
         String achievementId = achievementBlueprintLeafElement.getAchievementId();
-        AchievementDataRoot achievementDataRoot = achievementDataManager.getAchievementDataRoot();
+        AchievementDataRoot achievementDataRoot = mixedAchievementsManagerAccessor.getAchievementDataManager().getAchievementDataRoot();
         AchievementSetData achievementSetData = achievementDataRoot.getAchievementSetDataMap().get(setName);
 
         if (achievementSetData == null) {
@@ -177,7 +178,7 @@ public class AchievementManager {
     }
 
     private void achievementUnlocked(AchievementInfo achievementInfo, UUID playerId) {
-        Player player = plugin.getServer().getPlayer(playerId);
+        Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(playerId);
 
         if (player == null)
             return;

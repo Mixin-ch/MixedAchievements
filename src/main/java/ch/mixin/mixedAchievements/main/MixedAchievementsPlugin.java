@@ -21,9 +21,7 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
     private String pluginName;
     private String rootDirectoryPath;
     private CustomConfig achievementsConfig;
-    private AchievementDataManager achievementDataManager;
-    private AchievementManager achievementManager;
-    private AchievementInventoryManager achievementInventoryManager;
+    private MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
 
     @Override
     public void onEnable() {
@@ -46,19 +44,21 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         rootDirectoryPath = decodedPath.substring(0, decodedPath.lastIndexOf("/"));
         pluginName = getDescription().getName();
         achievementsConfig = new CustomConfig(this, "achievements");
-        achievementDataManager = new AchievementDataManager(achievementsConfig);
-        achievementInventoryManager = new AchievementInventoryManager();
-        achievementManager = new AchievementManager(this, achievementDataManager, achievementInventoryManager);
-        achievementInventoryManager.initialize(achievementManager);
-        EventListenerInitializer.setupEventListener(this, achievementInventoryManager);
-        CommandInitializer.setupCommands(this, achievementInventoryManager);
+
+        mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor();
+        mixedAchievementsManagerAccessor.setAchievementManager(new AchievementManager(mixedAchievementsManagerAccessor));
+        mixedAchievementsManagerAccessor.setAchievementDataManager(new AchievementDataManager(mixedAchievementsManagerAccessor, achievementsConfig));
+        mixedAchievementsManagerAccessor.setAchievementInventoryManager(new AchievementInventoryManager(mixedAchievementsManagerAccessor));
+
+        EventListenerInitializer.setupEventListener(mixedAchievementsManagerAccessor);
+        CommandInitializer.setupCommands(mixedAchievementsManagerAccessor);
     }
 
     @Override
     public void onDisable() {
         System.out.println(pluginName + " disabling");
         active = false;
-        achievementDataManager.saveToConfig();
+        mixedAchievementsManagerAccessor.getAchievementDataManager().saveToConfig();
         System.out.println(pluginName + " successfully disabled");
     }
 
@@ -66,6 +66,7 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         if (!active)
             throw new ServiceUnavailableException("Plugin is inactive.");
 
+        AchievementManager achievementManager = mixedAchievementsManagerAccessor.getAchievementManager();
         achievementManager.makeAchievementSet(achievementSetBlueprint);
         return new AchievementApi(achievementSetBlueprint.getSetName(), achievementManager);
     }
@@ -100,5 +101,9 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
 
     public String getPluginName() {
         return pluginName;
+    }
+
+    public String getRootDirectoryPath() {
+        return rootDirectoryPath;
     }
 }

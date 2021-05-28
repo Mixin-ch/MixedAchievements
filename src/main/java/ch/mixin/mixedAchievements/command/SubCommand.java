@@ -1,18 +1,15 @@
 package ch.mixin.mixedAchievements.command;
 
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
-import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
 public abstract class SubCommand {
-    protected final MixedAchievementsPlugin plugin;
-    protected final AchievementInventoryManager achievementInventoryManager;
+    protected final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
 
-    public SubCommand(MixedAchievementsPlugin plugin, AchievementInventoryManager achievementInventoryManager) {
-        this.plugin = plugin;
-        this.achievementInventoryManager = achievementInventoryManager;
+    public SubCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
+        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
     }
 
     public abstract SubCommand fetchCommand(List<String> arguments);

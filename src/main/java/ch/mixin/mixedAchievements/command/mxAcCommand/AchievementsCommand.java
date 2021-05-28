@@ -2,6 +2,7 @@ package ch.mixin.mixedAchievements.command.mxAcCommand;
 
 import ch.mixin.mixedAchievements.command.SubCommand;
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -11,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AchievementsCommand extends SubCommand {
-    public AchievementsCommand(MixedAchievementsPlugin plugin, AchievementInventoryManager achievementInventoryManager) {
-        super(plugin, achievementInventoryManager);
+    public AchievementsCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
+        super(mixedAchievementsManagerAccessor);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class AchievementsCommand extends SubCommand {
         }
 
         Player player = (Player) sender;
-        achievementInventoryManager.open(player);
+        mixedAchievementsManagerAccessor.getAchievementInventoryManager().open(player);
     }
 
     @Override

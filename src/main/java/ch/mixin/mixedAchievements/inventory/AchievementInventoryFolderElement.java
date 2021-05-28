@@ -1,8 +1,8 @@
 package ch.mixin.mixedAchievements.inventory;
 
 import ch.mixin.mixedAchievements.api.AchievementInfo;
-import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import ch.mixin.mixedAchievements.metaData.PlayerAchievementData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,8 +20,8 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
     protected HashMap<Integer, AchievementInventoryElement> subAchievementInventoryElementMap;
     protected String inventoryName;
 
-    public AchievementInventoryFolderElement(AchievementManager achievementManager, AchievementInventoryFolderElement parent, AchievementItemSetup achievementItemSetup, String inventoryName) {
-        super(achievementManager, parent, achievementItemSetup);
+    public AchievementInventoryFolderElement(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, AchievementInventoryFolderElement parent, AchievementItemSetup achievementItemSetup, String inventoryName) {
+        super(mixedAchievementsManagerAccessor, parent, achievementItemSetup);
         this.inventoryName = inventoryName;
         subAchievementInventoryElementMap = new HashMap<>();
     }
@@ -71,7 +71,7 @@ public class AchievementInventoryFolderElement extends AchievementInventoryEleme
         AchievementInfo ai = aile.getAchievementInfo();
         String setName = getSetName();
         String achievementId = ai.getAchievementData().getAchievementId();
-        PlayerAchievementData pad = achievementManager.fetchPlayerAchievementData(setName, achievementId, player.getUniqueId());
+        PlayerAchievementData pad = mixedAchievementsManagerAccessor.getAchievementManager().fetchPlayerAchievementData(setName, achievementId, player.getUniqueId());
 
         ItemStack item = new ItemStack(ais.getMaterial(), ais.getAmount());
         ItemMeta meta = item.getItemMeta();

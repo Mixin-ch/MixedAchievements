@@ -1,6 +1,7 @@
 package ch.mixin.mixedAchievements.command;
 
 import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
+import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
 import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,14 +17,16 @@ public abstract class RootCommand extends SubCommand implements CommandExecutor 
     protected final String commandName;
     protected final HashMap<String, SubCommand> subCommandMap;
 
-    public RootCommand(MixedAchievementsPlugin plugin, AchievementInventoryManager achievementInventoryManager, String commandName, HashMap<String, SubCommand> subCommandMap) {
-        super(plugin, achievementInventoryManager);
+    public RootCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, String commandName, HashMap<String, SubCommand> subCommandMap) {
+        super(mixedAchievementsManagerAccessor);
         this.commandName = commandName;
         this.subCommandMap = subCommandMap;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        MixedAchievementsPlugin plugin = mixedAchievementsManagerAccessor.getPlugin();
+
         if (!plugin.isActive()) {
             sender.sendMessage(ChatColor.RED + plugin.getPluginName() + " Plugin has Problems.");
             return true;
@@ -53,7 +56,7 @@ public abstract class RootCommand extends SubCommand implements CommandExecutor 
 
     @Override
     public void execute(CommandSender sender, List<String> arguments) {
-        sender.sendMessage(ChatColor.RED + plugin.getPluginName() + " Command not found.");
+        sender.sendMessage(ChatColor.RED + mixedAchievementsManagerAccessor.getPlugin().getPluginName() + " Command not found.");
     }
 
     @Override
