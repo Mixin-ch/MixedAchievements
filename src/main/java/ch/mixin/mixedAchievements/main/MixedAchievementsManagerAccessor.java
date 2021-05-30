@@ -1,14 +1,14 @@
 package ch.mixin.mixedAchievements.main;
 
 import ch.mixin.mixedAchievements.api.AchievementManager;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
-import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
+import ch.mixin.mixedAchievements.inventory.InventoryAchievementManager;
+import ch.mixin.mixedAchievements.data.DataAchievementManager;
 
 public class MixedAchievementsManagerAccessor {
     private final MixedAchievementsPlugin plugin;
     private AchievementManager achievementManager;
-    private AchievementDataManager achievementDataManager;
-    private AchievementInventoryManager achievementInventoryManager;
+    private DataAchievementManager dataAchievementManager;
+    private InventoryAchievementManager inventoryAchievementManager;
 
     public MixedAchievementsManagerAccessor(MixedAchievementsPlugin plugin) {
         this.plugin = plugin;
@@ -26,19 +26,19 @@ public class MixedAchievementsManagerAccessor {
         this.achievementManager = achievementManager;
     }
 
-    public AchievementDataManager getAchievementDataManager() {
-        return achievementDataManager;
+    public DataAchievementManager getAchievementDataManager() {
+        return dataAchievementManager;
     }
 
-    public void setAchievementDataManager(AchievementDataManager achievementDataManager) {
-        this.achievementDataManager = achievementDataManager;
+    public void setAchievementDataManager(DataAchievementManager dataAchievementManager) {
+        this.dataAchievementManager = dataAchievementManager;
     }
 
-    public AchievementInventoryManager getAchievementInventoryManager() {
-        return achievementInventoryManager;
+    public InventoryAchievementManager getAchievementInventoryManager() {
+        return inventoryAchievementManager;
     }
 
-    public void setAchievementInventoryManager(AchievementInventoryManager achievementInventoryManager) {
-        this.achievementInventoryManager = achievementInventoryManager;
+    public void setAchievementInventoryManager(InventoryAchievementManager inventoryAchievementManager) {
+        this.inventoryAchievementManager = inventoryAchievementManager;
     }
 }

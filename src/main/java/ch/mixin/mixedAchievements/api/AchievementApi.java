@@ -1,83 +1,125 @@
 package ch.mixin.mixedAchievements.api;
 
-import java.util.UUID;
-
 /**
  * Used to communicate with the MixedAchievement Plugin.
  */
 public class AchievementApi {
-    private final String setName;
+    private final String setId;
     private final AchievementManager achievementManager;
 
     /**
-     * @param setName
+     * @param setId
      * @param achievementManager
      */
-    public AchievementApi(String setName, AchievementManager achievementManager) {
-        this.setName = setName;
+    public AchievementApi(String setId, AchievementManager achievementManager) {
+        this.setId = setId;
         this.achievementManager = achievementManager;
     }
 
     /**
-     * Set an achievement to achieved or not.
+     * Complete achievement stage.
+     * Does nothing, if all achievement stage is on max value.
      *
      * @param achievementId
      * @param playerId
-     * @param achieved
      * @throws IllegalArgumentException
      */
-    public void setAchieved(String achievementId, UUID playerId, boolean achieved) throws IllegalArgumentException {
-        achievementManager.setAchieved(setName, achievementId, playerId, achieved);
+    public void completeStage(String achievementId, String playerId) throws IllegalArgumentException {
+        achievementManager.completeStage(setId, achievementId, playerId);
     }
 
     /**
-     * Checks if the achievement is achieved.
+     * Complete all achievement stages.
+     * Does nothing, if all achievement stage is on max value.
      *
      * @param achievementId
      * @param playerId
-     * @return Is the achievement is achieved?
      * @throws IllegalArgumentException
      */
-    public boolean getAchieved(String achievementId, UUID playerId) throws IllegalArgumentException {
-        return achievementManager.getAchieved(setName, achievementId, playerId);
+    public void completeAbsolut(String achievementId, String playerId) throws IllegalArgumentException {
+        achievementManager.completeAbsolut(setId, achievementId, playerId);
     }
 
     /**
-     * Sets the points value to a max of defined maxPoints.
-     * Sets achieved to true, if points >= maxPoints and maxPoints > 0.
+     * Returns true, if all achievement stage is on max value.
+     *
+     * @param achievementId
+     * @param playerId
+     * @throws IllegalArgumentException
+     */
+    public boolean isAbsolutCompleted(String achievementId, String playerId) throws IllegalArgumentException {
+        return achievementManager.isAbsolutCompleted(setId, achievementId, playerId);
+    }
+
+    /**
+     * Sets the stage to specified value, from 0 to the max stage value.
      *
      * @param achievementId
      * @param playerId
      * @param value
      * @throws IllegalArgumentException
      */
-    public void setPoints(String achievementId, UUID playerId, int value) throws IllegalArgumentException {
-        achievementManager.setPoints(setName, achievementId, playerId, value);
+    public void setStage(String achievementId, String playerId, int value) throws IllegalArgumentException {
+        achievementManager.setStage(setId, achievementId, playerId, value);
     }
 
     /**
-     * Adds specified amount to points value to a max of defined maxPoints.
-     * Sets achieved to true, if points >= maxPoints and maxPoints > 0.
+     * Adds specified value to the stage, from 0 to the max stage value.
      *
      * @param achievementId
      * @param playerId
      * @param value
      * @throws IllegalArgumentException
      */
-    public void addPoints(String achievementId, UUID playerId, int value) throws IllegalArgumentException {
-        achievementManager.addPoints(setName, achievementId, playerId, value);
+    public void addStage(String achievementId, String playerId, int value) throws IllegalArgumentException {
+        achievementManager.addStage(setId, achievementId, playerId, value);
     }
 
     /**
-     * Sets achieved to true if points >= maxPoints.
-     * Otherwise to false.
-     * If maxPoints <= 0, nothing changes.
+     * Returns the stage value.
      *
      * @param achievementId
      * @param playerId
      * @throws IllegalArgumentException
      */
-    public void revalueAchieved(String achievementId, UUID playerId) throws IllegalArgumentException {
-        achievementManager.revalueAchieved(setName, achievementId, playerId);
+    public int getStage(String achievementId, String playerId) throws IllegalArgumentException {
+        return achievementManager.getStage(setId, achievementId, playerId);
+    }
+
+    /**
+     * Sets points to specified value.
+     * Evaluates if new stage is completed.
+     *
+     * @param achievementId
+     * @param playerId
+     * @param value
+     * @throws IllegalArgumentException
+     */
+    public void setPoints(String achievementId, String playerId, int value) throws IllegalArgumentException {
+        achievementManager.setPoints(setId, achievementId, playerId, value);
+    }
+
+    /**
+     * Adds specified value to points.
+     * Checks if new stage is completed.
+     *
+     * @param achievementId
+     * @param playerId
+     * @param value
+     * @throws IllegalArgumentException
+     */
+    public void addPoints(String achievementId, String playerId, int value) throws IllegalArgumentException {
+        achievementManager.addPoints(setId, achievementId, playerId, value);
+    }
+
+    /**
+     * Reevaluates the points, and sets the stage value appropriately.
+     *
+     * @param achievementId
+     * @param playerId
+     * @throws IllegalArgumentException
+     */
+    public void revaluePointCompletion(String achievementId, String playerId) throws IllegalArgumentException {
+        achievementManager.revaluePointCompletion(setId, achievementId, playerId);
     }
 }

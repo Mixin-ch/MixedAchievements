@@ -1,188 +1,262 @@
 package ch.mixin.mixedAchievements.api;
 
-import ch.mixin.mixedAchievements.blueprint.AchievementBlueprintElement;
-import ch.mixin.mixedAchievements.blueprint.AchievementBlueprintFolderElement;
-import ch.mixin.mixedAchievements.blueprint.AchievementBlueprintLeafElement;
-import ch.mixin.mixedAchievements.blueprint.AchievementSetBlueprint;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryFolderElement;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryLeafElement;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
-import ch.mixin.mixedAchievements.inventory.AchievementRootInventory;
+import ch.mixin.mixedAchievements.blueprint.*;
+import ch.mixin.mixedAchievements.data.DataAchievement;
+import ch.mixin.mixedAchievements.data.DataAchievementRoot;
+import ch.mixin.mixedAchievements.data.DataAchievementSet;
+import ch.mixin.mixedAchievements.data.DataPlayerAchievement;
+import ch.mixin.mixedAchievements.inventory.*;
 import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
-import ch.mixin.mixedAchievements.metaData.AchievementData;
-import ch.mixin.mixedAchievements.metaData.AchievementDataRoot;
-import ch.mixin.mixedAchievements.metaData.AchievementSetData;
-import ch.mixin.mixedAchievements.metaData.PlayerAchievementData;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
-import java.util.UUID;
 
 public class AchievementManager {
     private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
 
-    private final TreeMap<String, AchievementSetInfo> achievementSetInfoMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final TreeMap<String, InfoAchievementSet> infoAchievementSetMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public AchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
         this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
     }
 
 
-    public void makeAchievementSet(AchievementSetBlueprint achievementSetBlueprint) {
-        AchievementInventoryManager achievementInventoryManager = mixedAchievementsManagerAccessor.getAchievementInventoryManager();
-        String setName = achievementSetBlueprint.getSetName();
+    public void integrateAchievementSet(BlueprintAchievementSet blueprintAchievementSet) {
+        InventoryAchievementManager inventoryAchievementManager = mixedAchievementsManagerAccessor.getAchievementInventoryManager();
+        String setId = blueprintAchievementSet.getSetId();
 
-        if (achievementSetInfoMap.containsKey(setName))
+        if (infoAchievementSetMap.containsKey(setId))
             return;
 
-        AchievementSetInfo achievementSetInfo = new AchievementSetInfo();
-        achievementSetInfoMap.put(setName, achievementSetInfo);
+        InfoAchievementSet infoAchievementSet = new InfoAchievementSet();
+        infoAchievementSetMap.put(setId, infoAchievementSet);
 
-        AchievementRootInventory achievementRootInventory = achievementInventoryManager.getAchievementRootInventory();
-        AchievementInventoryFolderElement achievementInventoryFolderElement = new AchievementInventoryFolderElement(mixedAchievementsManagerAccessor, achievementRootInventory, achievementSetBlueprint.getAchievementItemSetup(), achievementSetBlueprint.getSetName());
-        achievementRootInventory.getAchievementSetInventoryMap().put(setName, achievementInventoryFolderElement);
+        InventoryAchievementRoot inventoryAchievementRoot = inventoryAchievementManager.getAchievementRootInventory();
+        InventoryAchievementSet inventoryAchievementSet = new InventoryAchievementSet(mixedAchievementsManagerAccessor, inventoryAchievementRoot, setId, blueprintAchievementSet.getInventoryName(), blueprintAchievementSet.getAchievementItemSetup());
+        inventoryAchievementRoot.getInventoryAchievementSetMap().put(setId, inventoryAchievementSet);
 
-        makeAchievementSetFromFolder(achievementSetBlueprint, achievementSetInfo, achievementInventoryFolderElement, setName);
-        achievementInventoryManager.reload();
+        integrateAchievementCategory(blueprintAchievementSet, infoAchievementSet, inventoryAchievementSet, setId);
+        inventoryAchievementManager.reload();
     }
 
-    private void makeAchievementSetFromFolder(AchievementBlueprintFolderElement achievementBlueprintFolderElement, AchievementSetInfo achievementSetInfo, AchievementInventoryFolderElement achievementInventoryFolderElement, String setName) {
-        for (int slot : achievementBlueprintFolderElement.getSubAchievementBlueprintElementMap().keySet()) {
-            AchievementBlueprintElement blueprintElement = achievementBlueprintFolderElement.getSubAchievementBlueprintElementMap().get(slot);
+    private void integrateAchievementCategory(BlueprintAchievementCategory blueprintAchievementCategory, InfoAchievementSet infoAchievementSet, InventoryAchievementCategory inventoryAchievementCategory, String setId) {
+        for (int slot : blueprintAchievementCategory.getBlueprintAchievementElementMap().keySet()) {
+            BlueprintAchievementElement blueprintElement = blueprintAchievementCategory.getBlueprintAchievementElementMap().get(slot);
 
-            if (blueprintElement instanceof AchievementBlueprintFolderElement) {
-                AchievementBlueprintFolderElement subBlueprintFolder = (AchievementBlueprintFolderElement) blueprintElement;
-                AchievementInventoryFolderElement subInventoryFolder = new AchievementInventoryFolderElement(mixedAchievementsManagerAccessor, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup(), subBlueprintFolder.getInventoryName());
-                achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, subInventoryFolder);
-                makeAchievementSetFromFolder(subBlueprintFolder, achievementSetInfo, subInventoryFolder, setName);
+            if (blueprintElement instanceof BlueprintAchievementCategory) {
+                BlueprintAchievementCategory subBlueprintFolder = (BlueprintAchievementCategory) blueprintElement;
+                InventoryAchievementCategory subInventoryFolder = new InventoryAchievementCategory(mixedAchievementsManagerAccessor, inventoryAchievementCategory, subBlueprintFolder.getInventoryName(), subBlueprintFolder.getAchievementItemSetup());
+                inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, subInventoryFolder);
+                integrateAchievementCategory(subBlueprintFolder, infoAchievementSet, subInventoryFolder, setId);
             } else {
-                AchievementBlueprintLeafElement blueprintLeaf = (AchievementBlueprintLeafElement) blueprintElement;
-                AchievementInventoryLeafElement inventoryLeaf = new AchievementInventoryLeafElement(mixedAchievementsManagerAccessor, achievementInventoryFolderElement, blueprintElement.getAchievementItemSetup());
-                achievementInventoryFolderElement.getSubAchievementInventoryElementMap().put(slot, inventoryLeaf);
-                makeAchievementSetFromLeaf(blueprintLeaf, achievementSetInfo, inventoryLeaf, setName);
+                BlueprintAchievementLeaf blueprintLeaf = (BlueprintAchievementLeaf) blueprintElement;
+                List<AchievementItemSetup> achievementItemSetupList = new ArrayList<>();
+
+                for (BlueprintAchievementStage blueprintAchievementStage : blueprintLeaf.getBlueprintAchievementStageList()) {
+                    achievementItemSetupList.add(blueprintAchievementStage.getAchievementItemSetup());
+                }
+
+                InventoryAchievementLeaf inventoryLeaf = new InventoryAchievementLeaf(mixedAchievementsManagerAccessor, inventoryAchievementCategory, achievementItemSetupList);
+                inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, inventoryLeaf);
+                integrateAchievementLeaf(blueprintLeaf, infoAchievementSet, inventoryLeaf, setId);
             }
         }
     }
 
-    private void makeAchievementSetFromLeaf(AchievementBlueprintLeafElement achievementBlueprintLeafElement, AchievementSetInfo achievementSetInfo, AchievementInventoryLeafElement achievementInventoryLeafElement, String setName) {
-        String achievementId = achievementBlueprintLeafElement.getAchievementId();
-        AchievementDataRoot achievementDataRoot = mixedAchievementsManagerAccessor.getAchievementDataManager().getAchievementDataRoot();
-        AchievementSetData achievementSetData = achievementDataRoot.getAchievementSetDataMap().get(setName);
+    private void integrateAchievementLeaf(BlueprintAchievementLeaf blueprintAchievementLeaf, InfoAchievementSet infoAchievementSet, InventoryAchievementLeaf inventoryAchievementLeaf, String setId) {
+        String achievementId = blueprintAchievementLeaf.getAchievementId();
+        DataAchievementRoot dataAchievementRoot = mixedAchievementsManagerAccessor.getAchievementDataManager().getAchievementDataRoot();
+        DataAchievementSet dataAchievementSet = dataAchievementRoot.getDataAchievementSetMap().get(setId);
 
-        if (achievementSetData == null) {
-            achievementSetData = new AchievementSetData();
-            achievementDataRoot.getAchievementSetDataMap().put(setName, achievementSetData);
+        if (dataAchievementSet == null) {
+            dataAchievementSet = new DataAchievementSet(dataAchievementRoot, setId);
+            dataAchievementRoot.getDataAchievementSetMap().put(setId, dataAchievementSet);
         }
 
-        AchievementData achievementData = achievementSetData.getAchievementDataMap().get(achievementId);
+        DataAchievement dataAchievement = dataAchievementSet.getDataAchievementMap().get(achievementId);
 
-        if (achievementData == null) {
-            achievementData = new AchievementData(achievementSetData);
-            achievementSetData.getAchievementDataMap().put(achievementId, achievementData);
+        if (dataAchievement == null) {
+            dataAchievement = new DataAchievement(dataAchievementSet, achievementId);
+            dataAchievementSet.getDataAchievementMap().put(achievementId, dataAchievement);
         }
 
-        AchievementInfo achievementInfo = achievementSetInfo.getAchievementInfoMap().get(achievementId);
+        InfoAchievement infoAchievement = infoAchievementSet.getInfoAchievementMap().get(achievementId);
 
-        if (achievementInfo == null) {
-            achievementInfo = new AchievementInfo(achievementData, achievementBlueprintLeafElement.getAchievementName(), Math.max(0, achievementBlueprintLeafElement.getMaxPoints()));
-            achievementSetInfo.getAchievementInfoMap().put(achievementId, achievementInfo);
+        if (infoAchievement == null) {
+            infoAchievement = new InfoAchievement(dataAchievement, setId, blueprintAchievementLeaf.getAchievementId());
+            List<InfoAchievementStage> infoAchievementStageList = new ArrayList<>();
+            int maxPoints = 0;
+
+            for (int i = 0; i < blueprintAchievementLeaf.getBlueprintAchievementStageList().size(); i++) {
+                BlueprintAchievementStage blueprintAchievementStage = blueprintAchievementLeaf.getBlueprintAchievementStageList().get(i);
+                maxPoints = Math.max(maxPoints, blueprintAchievementStage.getMaxPoints());
+                infoAchievementStageList.add(new InfoAchievementStage(infoAchievement, i, maxPoints));
+            }
+
+            infoAchievement.setInfoAchievementStageList(infoAchievementStageList);
+            infoAchievement.setUsesPoints(maxPoints > 0);
+            infoAchievementSet.getInfoAchievementMap().put(achievementId, infoAchievement);
         }
 
-        achievementInventoryLeafElement.setAchievementInfo(achievementInfo);
+        inventoryAchievementLeaf.setInfoAchievement(infoAchievement);
     }
 
-    public void setAchieved(String setName, String achievementId, UUID playerId, boolean achieved) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+    public void completeStage(String setId, String achievementId, String playerId) {
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
 
-        if (!achieved) {
-            playerAchievementData.setAchieved(false);
+        if (dataPlayerAchievement.getStage() >= infoAchievement.getStageNumber())
             return;
+
+        dataPlayerAchievement.setStage(1 + dataPlayerAchievement.getStage());
+        achievementUnlocked(infoAchievement, playerId);
+    }
+
+    public void completeAbsolut(String setId, String achievementId, String playerId) {
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+
+        while (dataPlayerAchievement.getStage() < infoAchievement.getStageNumber()) {
+            completeStage(setId, achievementId, playerId);
+        }
+    }
+
+    public boolean isAbsolutCompleted(String setId, String achievementId, String playerId) {
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+        return dataPlayerAchievement.getStage() >= infoAchievement.getStageNumber();
+    }
+
+    public void setStage(String setId, String achievementId, String playerId, int value) {
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+        int stageNumber = infoAchievement.getStageNumber();
+        value = Math.min(stageNumber, value);
+
+        while (dataPlayerAchievement.getStage() < value) {
+            completeStage(setId, achievementId, playerId);
         }
 
-        if (playerAchievementData.isAchieved())
+        dataPlayerAchievement.setStage(value);
+    }
+
+    public void addStage(String setId, String achievementId, String playerId, int value) {
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+        int stageNumber = infoAchievement.getStageNumber();
+        value = Math.min(stageNumber, value + dataPlayerAchievement.getStage());
+
+        while (dataPlayerAchievement.getStage() < value) {
+            completeStage(setId, achievementId, playerId);
+        }
+
+        dataPlayerAchievement.setStage(value);
+    }
+
+    public int getStage(String setId, String achievementId, String playerId) {
+        return fetchDataPlayerAchievement(setId, achievementId, playerId).getStage();
+    }
+
+    public void setPoints(String setId, String achievementId, String playerId, int value) {
+        if (!fetchInfoAchievement(setId, achievementId).usesPoints())
             return;
 
-        playerAchievementData.setAchieved(true);
-        achievementUnlocked(fetchAchievementInfo(setName, achievementId), playerId);
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        dataPlayerAchievement.setPoints(value);
+        checkPointCompletion(setId, achievementId, playerId);
     }
 
-    public boolean getAchieved(String setName, String achievementId, UUID playerId) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
-        return playerAchievementData.isAchieved();
-    }
-
-
-    public void setPoints(String setName, String achievementId, UUID playerId, int value) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
-        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
-        int maxPoints = achievementInfo.getMaxPoints();
-        int points = Math.min(maxPoints, value);
-        playerAchievementData.setPoints(points);
-        checkPointsAchieved(setName, achievementId, playerId);
-    }
-
-    public void addPoints(String setName, String achievementId, UUID playerId, int value) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
-        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
-        int maxPoints = achievementInfo.getMaxPoints();
-        int points = Math.min(maxPoints, playerAchievementData.getPoints() + value);
-        playerAchievementData.setPoints(points);
-        checkPointsAchieved(setName, achievementId, playerId);
-    }
-
-    public void revalueAchieved(String setName, String achievementId, UUID playerId) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
-        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
-        int maxPoints = achievementInfo.getMaxPoints();
-
-        if (maxPoints <= 0)
+    public void addPoints(String setId, String achievementId, String playerId, int value) {
+        if (!fetchInfoAchievement(setId, achievementId).usesPoints())
             return;
 
-        setAchieved(setName, achievementId, playerId, playerAchievementData.getPoints() < maxPoints);
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        dataPlayerAchievement.setPoints(value + dataPlayerAchievement.getPoints());
+        checkPointCompletion(setId, achievementId, playerId);
     }
 
-    private void checkPointsAchieved(String setName, String achievementId, UUID playerId) {
-        PlayerAchievementData playerAchievementData = fetchPlayerAchievementData(setName, achievementId, playerId);
+    public int getPoints(String setId, String achievementId, String playerId) {
+        return fetchDataPlayerAchievement(setId, achievementId, playerId).getPoints();
+    }
 
-        if (playerAchievementData.isAchieved())
+    public void revaluePointCompletion(String setId, String achievementId, String playerId) {
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+
+        if (!infoAchievement.usesPoints())
             return;
 
-        revalueAchieved(setName, achievementId, playerId);
+        checkPointCompletion(setId, achievementId, playerId);
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+        InfoAchievementStage infoAchievementStage = infoAchievement.getInfoAchievementStageList().get(dataPlayerAchievement.getStage());
+
+        if (dataPlayerAchievement.getPoints() >= infoAchievementStage.getMaxPoints()) {
+            if (dataPlayerAchievement.getStage() >= infoAchievement.getStageNumber())
+                return;
+
+            completeStage(setId, achievementId, playerId);
+        } else {
+
+            dataPlayerAchievement.setStage(dataPlayerAchievement.getStage() - 1);
+        }
+
+        revaluePointCompletion(setId, achievementId, playerId);
     }
 
-    private AchievementInfo fetchAchievementInfo(String setName, String achievementId) {
-        AchievementSetInfo achievementSetInfo = achievementSetInfoMap.get(setName);
+    private void checkPointCompletion(String setId, String achievementId, String playerId) {
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
 
-        if (achievementSetInfo == null)
+        if (!infoAchievement.usesPoints())
+            return;
+
+        DataPlayerAchievement dataPlayerAchievement = fetchDataPlayerAchievement(setId, achievementId, playerId);
+
+        if (dataPlayerAchievement.getStage() >= infoAchievement.getStageNumber())
+            return;
+
+        InfoAchievementStage infoAchievementStage = infoAchievement.getInfoAchievementStageList().get(dataPlayerAchievement.getStage());
+
+        if (dataPlayerAchievement.getPoints() < infoAchievementStage.getMaxPoints())
+            return;
+
+        completeStage(setId, achievementId, playerId);
+        checkPointCompletion(setId, achievementId, playerId);
+    }
+
+    private InfoAchievement fetchInfoAchievement(String setId, String achievementId) {
+        InfoAchievementSet infoAchievementSet = infoAchievementSetMap.get(setId);
+
+        if (infoAchievementSet == null)
             throw new IllegalArgumentException("Set key not found.");
 
-        AchievementInfo achievementInfo = achievementSetInfo.getAchievementInfoMap().get(achievementId);
+        InfoAchievement infoAchievement = infoAchievementSet.getInfoAchievementMap().get(achievementId);
 
-        if (achievementInfo == null)
+        if (infoAchievement == null)
             throw new IllegalArgumentException("Achievement key not found.");
 
-        return achievementInfo;
+        return infoAchievement;
     }
 
-    public PlayerAchievementData fetchPlayerAchievementData(String setName, String achievementId, UUID playerId) throws IllegalArgumentException {
-        AchievementInfo achievementInfo = fetchAchievementInfo(setName, achievementId);
-        AchievementData achievementData = achievementInfo.getAchievementData();
-        PlayerAchievementData playerAchievementData = achievementData.getPlayerAchievementDataMap().get(playerId.toString());
+    public DataPlayerAchievement fetchDataPlayerAchievement(String setId, String achievementId, String playerId) throws IllegalArgumentException {
+        InfoAchievement infoAchievement = fetchInfoAchievement(setId, achievementId);
+        DataAchievement dataAchievement = infoAchievement.getDataAchievement();
+        DataPlayerAchievement dataPlayerAchievement = dataAchievement.getDataPlayerAchievementMap().get(playerId);
 
-        if (playerAchievementData == null) {
-            playerAchievementData = new PlayerAchievementData();
-            achievementData.getPlayerAchievementDataMap().put(playerId.toString(), playerAchievementData);
+        if (dataPlayerAchievement == null) {
+            dataPlayerAchievement = new DataPlayerAchievement(dataAchievement, playerId);
+            dataAchievement.getDataPlayerAchievementMap().put(playerId, dataPlayerAchievement);
         }
 
-        return playerAchievementData;
+        return dataPlayerAchievement;
     }
 
-    private void achievementUnlocked(AchievementInfo achievementInfo, UUID playerId) {
+    private void achievementUnlocked(InfoAchievement infoAchievement, String playerId) {
         Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(playerId);
 
         if (player == null)
             return;
 
-        player.sendMessage("Achievement unlocked: " + achievementInfo.getAchievementName());
+        player.sendMessage("Achievement unlocked: " + infoAchievement.getAchievementId());
     }
 }

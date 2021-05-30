@@ -2,12 +2,12 @@ package ch.mixin.mixedAchievements.main;
 
 import ch.mixin.mixedAchievements.api.AchievementApi;
 import ch.mixin.mixedAchievements.api.AchievementManager;
-import ch.mixin.mixedAchievements.blueprint.AchievementSetBlueprint;
+import ch.mixin.mixedAchievements.blueprint.BlueprintAchievementSet;
 import ch.mixin.mixedAchievements.command.CommandInitializer;
 import ch.mixin.mixedAchievements.customConfig.CustomConfig;
 import ch.mixin.mixedAchievements.eventListener.EventListenerInitializer;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
-import ch.mixin.mixedAchievements.metaData.AchievementDataManager;
+import ch.mixin.mixedAchievements.inventory.InventoryAchievementManager;
+import ch.mixin.mixedAchievements.data.DataAchievementManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.naming.ServiceUnavailableException;
@@ -47,8 +47,8 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
 
         mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor(this);
         mixedAchievementsManagerAccessor.setAchievementManager(new AchievementManager(mixedAchievementsManagerAccessor));
-        mixedAchievementsManagerAccessor.setAchievementDataManager(new AchievementDataManager(mixedAchievementsManagerAccessor, achievementsConfig));
-        mixedAchievementsManagerAccessor.setAchievementInventoryManager(new AchievementInventoryManager(mixedAchievementsManagerAccessor));
+        mixedAchievementsManagerAccessor.setAchievementDataManager(new DataAchievementManager(mixedAchievementsManagerAccessor, achievementsConfig));
+        mixedAchievementsManagerAccessor.setAchievementInventoryManager(new InventoryAchievementManager(mixedAchievementsManagerAccessor));
 
         EventListenerInitializer.setupEventListener(mixedAchievementsManagerAccessor);
         CommandInitializer.setupCommands(mixedAchievementsManagerAccessor);
@@ -62,13 +62,13 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         System.out.println(pluginName + " successfully disabled");
     }
 
-    public AchievementApi makeAchievementSet(AchievementSetBlueprint achievementSetBlueprint) throws ServiceUnavailableException {
+    public AchievementApi makeAchievementSet(BlueprintAchievementSet blueprintAchievementSet) throws ServiceUnavailableException {
         if (!active)
             throw new ServiceUnavailableException("Plugin is inactive.");
 
         AchievementManager achievementManager = mixedAchievementsManagerAccessor.getAchievementManager();
-        achievementManager.makeAchievementSet(achievementSetBlueprint);
-        return new AchievementApi(achievementSetBlueprint.getSetName(), achievementManager);
+        achievementManager.integrateAchievementSet(blueprintAchievementSet);
+        return new AchievementApi(blueprintAchievementSet.getSetId(), achievementManager);
     }
 
     private ArrayList<String> readFile(File file) {

@@ -1,9 +1,7 @@
 package ch.mixin.mixedAchievements.command.mxAcCommand;
 
 import ch.mixin.mixedAchievements.command.SubCommand;
-import ch.mixin.mixedAchievements.inventory.AchievementInventoryManager;
 import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
-import ch.mixin.mixedAchievements.main.MixedAchievementsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

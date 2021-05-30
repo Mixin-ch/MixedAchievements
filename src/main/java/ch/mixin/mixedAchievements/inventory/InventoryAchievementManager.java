@@ -11,14 +11,13 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
-import java.util.UUID;
 
-public class AchievementInventoryManager {
+public class InventoryAchievementManager {
     public static int CancelSlot = 8;
     public static AchievementItemSetup CancelItem = new AchievementItemSetup();
     public static ChatColor CategoryColor = ChatColor.of("#7F7FFF");
-    public static ChatColor UnlockedColor = ChatColor.of("#FFBF00");
-    public static ChatColor LockedColor = ChatColor.of("#7F7F7F");
+    public static ChatColor CompletedColor = ChatColor.of("#FFBF00");
+    public static ChatColor IncompletedColor = ChatColor.of("#7F7F7F");
 
     static {
         CancelItem.setMaterial(Material.BARRIER);
@@ -27,17 +26,17 @@ public class AchievementInventoryManager {
     }
 
     private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
-    private final AchievementRootInventory achievementRootInventory;
-    private final HashMap<UUID, ActiveAchievementInventory> playerActiveInventoryMap = new HashMap<>();
+    private final InventoryAchievementRoot inventoryAchievementRoot;
+    private final HashMap<String, ActiveInventoryAchievement> playerActiveInventoryMap = new HashMap<>();
 
-    public AchievementInventoryManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
+    public InventoryAchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
         this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
-        achievementRootInventory = new AchievementRootInventory(mixedAchievementsManagerAccessor);
+        inventoryAchievementRoot = new InventoryAchievementRoot(mixedAchievementsManagerAccessor);
         reload();
     }
 
     public void reload() {
-        for (ActiveAchievementInventory aai : playerActiveInventoryMap.values()) {
+        for (ActiveInventoryAchievement aai : playerActiveInventoryMap.values()) {
             for (HumanEntity humanEntity : aai.getInventory().getViewers()) {
                 if (humanEntity.getInventory() == aai.getInventory())
                     humanEntity.closeInventory();
@@ -46,20 +45,20 @@ public class AchievementInventoryManager {
     }
 
     public void open(Player player) {
-        AchievementInventoryFolderElement aife = achievementRootInventory;
+        InventoryAchievementCategory aic = inventoryAchievementRoot;
 
-        if (achievementRootInventory.getSubAchievementInventoryElementMap().size() == 1) {
-            aife = (AchievementInventoryFolderElement) achievementRootInventory.getSubAchievementInventoryElementMap().values().toArray(new AchievementInventoryElement[1])[0];
+        if (inventoryAchievementRoot.getInventoryAchievementElementMap().size() == 1) {
+            aic = (InventoryAchievementCategory) inventoryAchievementRoot.getInventoryAchievementElementMap().values().toArray(new InventoryAchievementElement[1])[0];
         }
 
-        Inventory inventory = aife.generateInventory(player);
+        Inventory inventory = aic.generateInventory(player);
         player.openInventory(inventory);
-        playerActiveInventoryMap.put(player.getUniqueId(), new ActiveAchievementInventory(aife, inventory));
+        playerActiveInventoryMap.put(player.getUniqueId().toString(), new ActiveInventoryAchievement(aic, inventory));
     }
 
     public void click(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
+        ActiveInventoryAchievement aai = playerActiveInventoryMap.get(player.getUniqueId());
 
         if (aai == null)
             return;
@@ -75,36 +74,36 @@ public class AchievementInventoryManager {
             return;
 
         event.setCancelled(true);
-        AchievementInventoryFolderElement aife = aai.getAchievementInventoryFolderElement();
-        AchievementInventoryFolderElement newAife;
+        InventoryAchievementCategory aic = aai.getAchievementInventoryFolderElement();
+        InventoryAchievementCategory newAic;
 
         if (slot == CancelSlot) {
-            if (aife.getParent() == null) {
+            if (aic.getParent() == null) {
                 player.closeInventory();
                 return;
             }
 
-            newAife = (AchievementInventoryFolderElement) aife.getParent();
+            newAic = aic.getParent();
         } else {
-            AchievementInventoryElement aie = aife.getSubAchievementInventoryElementMap().get(slot);
+            InventoryAchievementElement aie = aic.getInventoryAchievementElementMap().get(slot);
 
             if (aie == null)
                 return;
 
-            if (!(aie instanceof AchievementInventoryFolderElement))
+            if (!(aie instanceof InventoryAchievementCategory))
                 return;
 
-            newAife = (AchievementInventoryFolderElement) aie;
+            newAic = (InventoryAchievementCategory) aie;
         }
 
-        Inventory newInventory = newAife.generateInventory(player);
+        Inventory newInventory = newAic.generateInventory(player);
         player.openInventory(newInventory);
-        playerActiveInventoryMap.put(player.getUniqueId(), new ActiveAchievementInventory(newAife, newInventory));
+        playerActiveInventoryMap.put(player.getUniqueId().toString(), new ActiveInventoryAchievement(newAic, newInventory));
     }
 
     public void drag(InventoryDragEvent event) {
         Player player = (Player) event.getWhoClicked();
-        ActiveAchievementInventory aai = playerActiveInventoryMap.get(player.getUniqueId());
+        ActiveInventoryAchievement aai = playerActiveInventoryMap.get(player.getUniqueId());
 
         if (aai == null)
             return;
@@ -122,7 +121,7 @@ public class AchievementInventoryManager {
         }
     }
 
-    public AchievementRootInventory getAchievementRootInventory() {
-        return achievementRootInventory;
+    public InventoryAchievementRoot getAchievementRootInventory() {
+        return inventoryAchievementRoot;
     }
 }
