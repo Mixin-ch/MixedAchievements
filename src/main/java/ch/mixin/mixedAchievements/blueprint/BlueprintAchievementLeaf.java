@@ -15,7 +15,7 @@ public class BlueprintAchievementLeaf extends BlueprintAchievementElement {
         usesPoints = false;
     }
 
-    public BlueprintAchievementLeaf(AchievementItemSetup achievementItemSetup, String achievementId, int maxPoints) {
+    public BlueprintAchievementLeaf(String achievementId, AchievementItemSetup achievementItemSetup, int maxPoints) {
         this.achievementId = achievementId;
         blueprintAchievementStageList = new ArrayList<>();
         blueprintAchievementStageList.add(new BlueprintAchievementStage(achievementItemSetup, maxPoints));

@@ -45,27 +45,27 @@ public class InventoryAchievementManager {
     }
 
     public void open(Player player) {
-        InventoryAchievementCategory aic = inventoryAchievementRoot;
+        InventoryAchievementCategory iac = inventoryAchievementRoot;
 
-        if (inventoryAchievementRoot.getInventoryAchievementElementMap().size() == 1) {
-            aic = (InventoryAchievementCategory) inventoryAchievementRoot.getInventoryAchievementElementMap().values().toArray(new InventoryAchievementElement[1])[0];
+        if (inventoryAchievementRoot.getInventoryAchievementSetMap().size() == 1) {
+            iac = (InventoryAchievementCategory) inventoryAchievementRoot.getInventoryAchievementSetMap().values().toArray(new InventoryAchievementElement[1])[0];
         }
 
-        Inventory inventory = aic.generateInventory(player);
+        Inventory inventory = iac.generateInventory(player);
         player.openInventory(inventory);
-        playerActiveInventoryMap.put(player.getUniqueId().toString(), new ActiveInventoryAchievement(aic, inventory));
+        playerActiveInventoryMap.put(player.getUniqueId().toString(), new ActiveInventoryAchievement(iac, inventory));
     }
 
     public void click(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        ActiveInventoryAchievement aai = playerActiveInventoryMap.get(player.getUniqueId());
+        ActiveInventoryAchievement aia = playerActiveInventoryMap.get(player.getUniqueId().toString());
 
-        if (aai == null)
+        if (aia == null)
             return;
 
         Inventory inventory = event.getInventory();
 
-        if (inventory != aai.getInventory())
+        if (inventory != aia.getInventory())
             return;
 
         int slot = event.getRawSlot();
@@ -74,7 +74,7 @@ public class InventoryAchievementManager {
             return;
 
         event.setCancelled(true);
-        InventoryAchievementCategory aic = aai.getAchievementInventoryFolderElement();
+        InventoryAchievementCategory aic = aia.getAchievementInventoryFolderElement();
         InventoryAchievementCategory newAic;
 
         if (slot == CancelSlot) {

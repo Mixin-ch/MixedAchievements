@@ -21,6 +21,9 @@ public class InventoryAchievementRoot extends InventoryAchievementCategory {
         int slot = 0;
 
         for (String setId : inventoryAchievementSetMap.keySet()) {
+            if (slot == InventoryAchievementManager.CancelSlot)
+                slot++;
+
             InventoryAchievementSet ais = inventoryAchievementSetMap.get(setId);
             inventoryAchievementElementMap.put(slot, ais);
             slot++;

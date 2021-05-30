@@ -31,7 +31,8 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
     }
 
     public Inventory generateInventory(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 6 * 9, inventoryName);
+        int inventorySize = inventoryAchievementElementMap.size();
+        Inventory inventory = Bukkit.createInventory(null, 9 * (int) Math.ceil((inventorySize + 1) / 9.0), inventoryName);
 
         for (int slot : inventoryAchievementElementMap.keySet()) {
             InventoryAchievementElement iae = inventoryAchievementElementMap.get(slot);
