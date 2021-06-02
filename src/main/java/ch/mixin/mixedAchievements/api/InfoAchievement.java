@@ -1,11 +1,13 @@
 package ch.mixin.mixedAchievements.api;
 
 import ch.mixin.mixedAchievements.data.DataAchievement;
+import ch.mixin.mixedAchievements.inventory.InventoryAchievementLeaf;
 
 import java.util.List;
 
 public class InfoAchievement {
     private final DataAchievement dataAchievement;
+    private InventoryAchievementLeaf inventoryAchievementLeaf;
     private final String setId;
     private final String achievementId;
     private List<InfoAchievementStage> infoAchievementStageList;
@@ -23,6 +25,18 @@ public class InfoAchievement {
 
     public DataAchievement getDataAchievement() {
         return dataAchievement;
+    }
+
+    public InventoryAchievementLeaf getInventoryAchievementLeaf() {
+        return inventoryAchievementLeaf;
+    }
+
+    public void setInventoryAchievementLeaf(InventoryAchievementLeaf inventoryAchievementLeaf) {
+        this.inventoryAchievementLeaf = inventoryAchievementLeaf;
+    }
+
+    public boolean isUsesPoints() {
+        return usesPoints;
     }
 
     public String getSetId() {

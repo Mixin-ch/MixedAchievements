@@ -6,37 +6,36 @@ import java.util.List;
 public class BlueprintAchievementLeaf extends BlueprintAchievementElement {
     private final String achievementId;
     private final List<BlueprintAchievementStage> blueprintAchievementStageList;
-    private final boolean usesPoints;
 
-    public BlueprintAchievementLeaf(String achievementId, AchievementItemSetup achievementItemSetup) {
+    public BlueprintAchievementLeaf(String achievementId, List<BlueprintAchievementStage> blueprintAchievementStageList) {
         this.achievementId = achievementId;
-        blueprintAchievementStageList = new ArrayList<>();
+        this.blueprintAchievementStageList = blueprintAchievementStageList;
+    }
+
+    public static BlueprintAchievementLeaf createSimple(String achievementId, AchievementItemSetup achievementItemSetup) {
+        List<BlueprintAchievementStage> blueprintAchievementStageList = new ArrayList<>();
         blueprintAchievementStageList.add(new BlueprintAchievementStage(achievementItemSetup));
-        usesPoints = false;
+        return new BlueprintAchievementLeaf(achievementId, blueprintAchievementStageList);
     }
 
-    public BlueprintAchievementLeaf(String achievementId, AchievementItemSetup achievementItemSetup, int maxPoints) {
-        this.achievementId = achievementId;
-        blueprintAchievementStageList = new ArrayList<>();
+    public static BlueprintAchievementLeaf createSimplePoints(String achievementId, AchievementItemSetup achievementItemSetup, int maxPoints) {
+        List<BlueprintAchievementStage> blueprintAchievementStageList = new ArrayList<>();
         blueprintAchievementStageList.add(new BlueprintAchievementStage(achievementItemSetup, maxPoints));
-        usesPoints = true;
+        return new BlueprintAchievementLeaf(achievementId, blueprintAchievementStageList);
     }
 
-    public BlueprintAchievementLeaf(String achievementId, List<AchievementItemSetup> achievementItemSetupList) {
-        this.achievementId = achievementId;
-        blueprintAchievementStageList = new ArrayList<>();
+    public static BlueprintAchievementLeaf createList(String achievementId, List<AchievementItemSetup> achievementItemSetupList) {
+        List<BlueprintAchievementStage> blueprintAchievementStageList = new ArrayList<>();
 
         for (AchievementItemSetup ais : achievementItemSetupList) {
             blueprintAchievementStageList.add(new BlueprintAchievementStage(ais));
         }
 
-        usesPoints = false;
+        return new BlueprintAchievementLeaf(achievementId, blueprintAchievementStageList);
     }
 
-    public BlueprintAchievementLeaf(String achievementId, List<BlueprintAchievementStage> blueprintAchievementStageList, boolean usesPoints) {
-        this.achievementId = achievementId;
-        this.blueprintAchievementStageList = blueprintAchievementStageList;
-        this.usesPoints = usesPoints;
+    public static BlueprintAchievementLeaf createListPoints(String achievementId, List<BlueprintAchievementStage> blueprintAchievementStageList) {
+        return new BlueprintAchievementLeaf(achievementId, blueprintAchievementStageList);
     }
 
     public String getAchievementId() {
@@ -45,9 +44,5 @@ public class BlueprintAchievementLeaf extends BlueprintAchievementElement {
 
     public List<BlueprintAchievementStage> getBlueprintAchievementStageList() {
         return blueprintAchievementStageList;
-    }
-
-    public boolean isUsesPoints() {
-        return usesPoints;
     }
 }

@@ -7,11 +7,13 @@ import ch.mixin.mixedAchievements.data.DataAchievementSet;
 import ch.mixin.mixedAchievements.data.DataPlayerAchievement;
 import ch.mixin.mixedAchievements.inventory.*;
 import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.UUID;
 
 public class AchievementManager {
     private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
@@ -21,7 +23,6 @@ public class AchievementManager {
     public AchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
         this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
     }
-
 
     public void integrateAchievementSet(BlueprintAchievementSet blueprintAchievementSet) {
         InventoryAchievementManager inventoryAchievementManager = mixedAchievementsManagerAccessor.getAchievementInventoryManager();
@@ -51,21 +52,12 @@ public class AchievementManager {
                 inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, subInventoryFolder);
                 integrateAchievementCategory(subBlueprintFolder, infoAchievementSet, subInventoryFolder, setId);
             } else {
-                BlueprintAchievementLeaf blueprintLeaf = (BlueprintAchievementLeaf) blueprintElement;
-                List<AchievementItemSetup> achievementItemSetupList = new ArrayList<>();
-
-                for (BlueprintAchievementStage blueprintAchievementStage : blueprintLeaf.getBlueprintAchievementStageList()) {
-                    achievementItemSetupList.add(blueprintAchievementStage.getAchievementItemSetup());
-                }
-
-                InventoryAchievementLeaf inventoryLeaf = new InventoryAchievementLeaf(mixedAchievementsManagerAccessor, inventoryAchievementCategory, achievementItemSetupList);
-                inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, inventoryLeaf);
-                integrateAchievementLeaf(blueprintLeaf, infoAchievementSet, inventoryLeaf, setId);
+                integrateAchievementLeaf(inventoryAchievementCategory, (BlueprintAchievementLeaf) blueprintElement, infoAchievementSet, setId, slot);
             }
         }
     }
 
-    private void integrateAchievementLeaf(BlueprintAchievementLeaf blueprintAchievementLeaf, InfoAchievementSet infoAchievementSet, InventoryAchievementLeaf inventoryAchievementLeaf, String setId) {
+    private void integrateAchievementLeaf(InventoryAchievementCategory inventoryAchievementCategory, BlueprintAchievementLeaf blueprintAchievementLeaf, InfoAchievementSet infoAchievementSet, String setId, int slot) {
         String achievementId = blueprintAchievementLeaf.getAchievementId();
         DataAchievementRoot dataAchievementRoot = mixedAchievementsManagerAccessor.getAchievementDataManager().getAchievementDataRoot();
         DataAchievementSet dataAchievementSet = dataAchievementRoot.getDataAchievementSetMap().get(setId);
@@ -98,9 +90,18 @@ public class AchievementManager {
             infoAchievement.setInfoAchievementStageList(infoAchievementStageList);
             infoAchievement.setUsesPoints(maxPoints > 0);
             infoAchievementSet.getInfoAchievementMap().put(achievementId, infoAchievement);
+
+            List<AchievementItemSetup> achievementItemSetupList = new ArrayList<>();
+
+            for (BlueprintAchievementStage blueprintAchievementStage : blueprintAchievementLeaf.getBlueprintAchievementStageList()) {
+                achievementItemSetupList.add(blueprintAchievementStage.getAchievementItemSetup());
+            }
+
+            InventoryAchievementLeaf inventoryAchievementLeaf = new InventoryAchievementLeaf(mixedAchievementsManagerAccessor, inventoryAchievementCategory, infoAchievement, achievementItemSetupList);
+            infoAchievement.setInventoryAchievementLeaf(inventoryAchievementLeaf);
         }
 
-        inventoryAchievementLeaf.setInfoAchievement(infoAchievement);
+        inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, infoAchievement.getInventoryAchievementLeaf());
     }
 
     public void completeStage(String setId, String achievementId, String playerId) {
@@ -252,11 +253,22 @@ public class AchievementManager {
     }
 
     private void achievementUnlocked(InfoAchievement infoAchievement, String playerId) {
-        Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(playerId);
+        Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(UUID.fromString(playerId));
 
         if (player == null)
             return;
 
-        player.sendMessage("Achievement unlocked: " + infoAchievement.getAchievementId());
+        int stage = -1 + infoAchievement.getDataAchievement().getDataPlayerAchievementMap().get(playerId).getStage();
+        String name = infoAchievement.getInventoryAchievementLeaf().getAchievementItemSetupList().get(stage).getName();
+
+        String message = "Achievement completed: " + name;
+        int borderLength = ChatColor.stripColor(message).length();
+        borderLength = Math.max(0, borderLength - 2);
+        String border = new String(new char[borderLength]).replace("\0", "=") + ChatColor.MAGIC + "x";
+        player.sendMessage("");
+        player.sendMessage(border);
+        player.sendMessage(message);
+        player.sendMessage(border);
+        player.sendMessage("");
     }
 }
