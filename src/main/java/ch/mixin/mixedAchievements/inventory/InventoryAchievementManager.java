@@ -17,7 +17,7 @@ public class InventoryAchievementManager {
     public static AchievementItemSetup CancelItem = new AchievementItemSetup();
     public static ChatColor CategoryColor = ChatColor.of("#7F7FFF");
     public static ChatColor CompletedColor = ChatColor.of("#FFBF00");
-    public static ChatColor IncompletedColor = ChatColor.of("#7F7F7F");
+    public static ChatColor IncompletedColor = ChatColor.of("#BFBFBF");
 
     static {
         CancelItem.setMaterial(Material.BARRIER);
