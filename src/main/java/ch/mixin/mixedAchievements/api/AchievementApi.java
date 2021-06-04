@@ -113,6 +113,17 @@ public class AchievementApi {
     }
 
     /**
+     * Returns the point value.
+     *
+     * @param achievementId
+     * @param playerId
+     * @throws IllegalArgumentException
+     */
+    public int getPoints(String achievementId, String playerId) throws IllegalArgumentException {
+        return achievementManager.getPoints(setId, achievementId, playerId);
+    }
+
+    /**
      * Reevaluates the points, and sets the stage value appropriately.
      *
      * @param achievementId
