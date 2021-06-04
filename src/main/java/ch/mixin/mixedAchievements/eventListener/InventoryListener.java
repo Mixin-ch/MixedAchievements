@@ -15,11 +15,11 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        mixedAchievementsManagerAccessor.getAchievementInventoryManager().click(event);
+        mixedAchievementsManagerAccessor.getInventoryAchievementManager().click(event);
     }
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        mixedAchievementsManagerAccessor.getAchievementInventoryManager().drag(event);
+        mixedAchievementsManagerAccessor.getInventoryAchievementManager().drag(event);
     }
 }

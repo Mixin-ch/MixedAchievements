@@ -20,7 +20,7 @@ public class DataPlayerAchievement {
     }
 
     private void loadFromConfig(ConfigurationSection dataPlayerAchievementConfig) {
-        if (dataPlayerAchievementConfig.contains("achieved"))
+        if (dataPlayerAchievementConfig.contains("stage"))
             stage = dataPlayerAchievementConfig.getInt("stage");
 
         if (dataPlayerAchievementConfig.contains("points"))

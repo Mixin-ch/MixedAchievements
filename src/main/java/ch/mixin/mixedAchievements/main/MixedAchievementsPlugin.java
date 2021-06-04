@@ -5,6 +5,7 @@ import ch.mixin.mixedAchievements.api.AchievementManager;
 import ch.mixin.mixedAchievements.blueprint.BlueprintAchievementSet;
 import ch.mixin.mixedAchievements.command.CommandInitializer;
 import ch.mixin.mixedAchievements.customConfig.CustomConfig;
+import ch.mixin.mixedAchievements.event.AchievementEventManager;
 import ch.mixin.mixedAchievements.eventListener.EventListenerInitializer;
 import ch.mixin.mixedAchievements.inventory.InventoryAchievementManager;
 import ch.mixin.mixedAchievements.data.DataAchievementManager;
@@ -47,8 +48,9 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
 
         mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor(this);
         mixedAchievementsManagerAccessor.setAchievementManager(new AchievementManager(mixedAchievementsManagerAccessor));
-        mixedAchievementsManagerAccessor.setAchievementDataManager(new DataAchievementManager(mixedAchievementsManagerAccessor, achievementsConfig));
-        mixedAchievementsManagerAccessor.setAchievementInventoryManager(new InventoryAchievementManager(mixedAchievementsManagerAccessor));
+        mixedAchievementsManagerAccessor.setDataAchievementManager(new DataAchievementManager(mixedAchievementsManagerAccessor, achievementsConfig));
+        mixedAchievementsManagerAccessor.setInventoryAchievementManager(new InventoryAchievementManager(mixedAchievementsManagerAccessor));
+        mixedAchievementsManagerAccessor.setAchievementEventManager(new AchievementEventManager(mixedAchievementsManagerAccessor));
 
         EventListenerInitializer.setupEventListener(mixedAchievementsManagerAccessor);
         CommandInitializer.setupCommands(mixedAchievementsManagerAccessor);
@@ -58,7 +60,7 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
     public void onDisable() {
         System.out.println(pluginName + " disabling");
         active = false;
-        mixedAchievementsManagerAccessor.getAchievementDataManager().saveToConfig();
+        mixedAchievementsManagerAccessor.getDataAchievementManager().saveToConfig();
         System.out.println(pluginName + " successfully disabled");
     }
 

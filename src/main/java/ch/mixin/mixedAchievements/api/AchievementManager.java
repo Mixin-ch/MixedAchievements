@@ -5,9 +5,9 @@ import ch.mixin.mixedAchievements.data.DataAchievement;
 import ch.mixin.mixedAchievements.data.DataAchievementRoot;
 import ch.mixin.mixedAchievements.data.DataAchievementSet;
 import ch.mixin.mixedAchievements.data.DataPlayerAchievement;
+import ch.mixin.mixedAchievements.event.AchievementCompletedEvent;
 import ch.mixin.mixedAchievements.inventory.*;
 import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class AchievementManager {
     }
 
     public void integrateAchievementSet(BlueprintAchievementSet blueprintAchievementSet) {
-        InventoryAchievementManager inventoryAchievementManager = mixedAchievementsManagerAccessor.getAchievementInventoryManager();
+        InventoryAchievementManager inventoryAchievementManager = mixedAchievementsManagerAccessor.getInventoryAchievementManager();
         String setId = blueprintAchievementSet.getSetId();
 
         if (infoAchievementSetMap.containsKey(setId))
@@ -59,7 +59,7 @@ public class AchievementManager {
 
     private void integrateAchievementLeaf(InventoryAchievementCategory inventoryAchievementCategory, BlueprintAchievementLeaf blueprintAchievementLeaf, InfoAchievementSet infoAchievementSet, String setId, int slot) {
         String achievementId = blueprintAchievementLeaf.getAchievementId();
-        DataAchievementRoot dataAchievementRoot = mixedAchievementsManagerAccessor.getAchievementDataManager().getAchievementDataRoot();
+        DataAchievementRoot dataAchievementRoot = mixedAchievementsManagerAccessor.getDataAchievementManager().getAchievementDataRoot();
         DataAchievementSet dataAchievementSet = dataAchievementRoot.getDataAchievementSetMap().get(setId);
 
         if (dataAchievementSet == null) {
@@ -112,7 +112,7 @@ public class AchievementManager {
             return;
 
         dataPlayerAchievement.setStage(1 + dataPlayerAchievement.getStage());
-        achievementUnlocked(infoAchievement, playerId);
+        achievementCompleted(infoAchievement, playerId);
     }
 
     public void completeAbsolut(String setId, String achievementId, String playerId) {
@@ -252,7 +252,7 @@ public class AchievementManager {
         return dataPlayerAchievement;
     }
 
-    private void achievementUnlocked(InfoAchievement infoAchievement, String playerId) {
+    private void achievementCompleted(InfoAchievement infoAchievement, String playerId) {
         Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(UUID.fromString(playerId));
 
         if (player == null)
@@ -260,15 +260,9 @@ public class AchievementManager {
 
         int stage = -1 + infoAchievement.getDataAchievement().getDataPlayerAchievementMap().get(playerId).getStage();
         String name = infoAchievement.getInventoryAchievementLeaf().getAchievementItemSetupList().get(stage).getName();
-
         String message = "Achievement completed: " + name;
-        int borderLength = ChatColor.stripColor(message).length();
-        borderLength = Math.max(0, borderLength - 2);
-        String border = new String(new char[borderLength]).replace("\0", "=") + ChatColor.MAGIC + "x";
-        player.sendMessage("");
-        player.sendMessage(border);
-        player.sendMessage(message);
-        player.sendMessage(border);
-        player.sendMessage("");
+
+        AchievementCompletedEvent event = new AchievementCompletedEvent(player, infoAchievement.getSetId(), infoAchievement.getAchievementId(), message);
+        mixedAchievementsManagerAccessor.getAchievementEventManager().callAchievementCompletedEvent(event);
     }
 }

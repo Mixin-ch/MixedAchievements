@@ -32,7 +32,7 @@ public class AchievementsCommand extends SubCommand {
         }
 
         Player player = (Player) sender;
-        mixedAchievementsManagerAccessor.getAchievementInventoryManager().open(player);
+        mixedAchievementsManagerAccessor.getInventoryAchievementManager().open(player);
     }
 
     @Override
