@@ -66,8 +66,18 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
     private ItemStack makeItemLeafSlot(InventoryAchievementLeaf ial, Player player) {
         InfoAchievement infoAchievement = ial.getInfoAchievement();
         DataPlayerAchievement dpa = mixedAchievementsManagerAccessor.getAchievementManager().fetchDataPlayerAchievement(infoAchievement.getSetId(), infoAchievement.getDataAchievement().getAchievementId(), player.getUniqueId().toString());
+        List<AchievementItemSetup> achievementItemSetupList = ial.getAchievementItemSetupList();
+        int stageSize = achievementItemSetupList.size();
         int currentStage = dpa.getStage();
-        AchievementItemSetup achievementItemSetup = ial.getAchievementItemSetupList().get(currentStage);
+        int topCurrentStage = currentStage;
+        boolean absolutCompleted = false;
+
+        while (topCurrentStage >= stageSize) {
+            absolutCompleted = true;
+            topCurrentStage--;
+        }
+
+        AchievementItemSetup achievementItemSetup = achievementItemSetupList.get(topCurrentStage);
 
         ItemStack item = new ItemStack(achievementItemSetup.getMaterial(), achievementItemSetup.getAmount());
         ItemMeta meta = item.getItemMeta();
@@ -75,12 +85,9 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
         if (meta != null) {
             meta.setDisplayName(achievementItemSetup.getName());
             ArrayList<String> Lore = new ArrayList<>();
+            InfoAchievementStage ias = infoAchievement.getInfoAchievementStageList().get(topCurrentStage);
 
-            List<AchievementItemSetup> achievementItemSetupList = ial.getAchievementItemSetupList();
-            int stageSize = achievementItemSetupList.size();
-            InfoAchievementStage ias = infoAchievement.getInfoAchievementStageList().get(currentStage);
-
-            if (currentStage == stageSize) {
+            if (absolutCompleted) {
                 meta.addEnchant(Enchantment.LOYALTY, 1, true);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 Lore.add(InventoryAchievementManager.CompletedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Completed");
@@ -100,11 +107,20 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
                 if (currentStage > 0) {
                     Lore.add("");
 
-                    Lore.add(InventoryAchievementManager.CompletedColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Stages");
+                    Lore.add(InventoryAchievementManager.StageColor + "" + ChatColor.BOLD + ChatColor.ITALIC + "Completed Stages");
                 }
 
-                for (int i = 0; i < currentStage; i++) {
-                    Lore.add(achievementItemSetupList.get(i).getName());
+                if (infoAchievement.usesPoints()) {
+                    for (int i = 0; i < currentStage; i++) {
+                        String name = achievementItemSetupList.get(i).getName();
+                        int maxPoints = infoAchievement.getInfoAchievementStageList().get(i).getMaxPoints();
+                        Lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "[" + maxPoints + "] " + name);
+                    }
+                } else {
+                    for (int i = 0; i < currentStage; i++) {
+                        String name = achievementItemSetupList.get(i).getName();
+                        Lore.add(ChatColor.RESET + "" + ChatColor.WHITE + name);
+                    }
                 }
             }
 
