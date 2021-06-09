@@ -6,3 +6,12 @@ api-version: 1.16
 commands:
   mx-ac:
     description: The Root Command for MixedAchievments with Prefix mx-ac.
+permissions:
+  mixedAchievements.reload:
+    description: Reaload the Plugin.
+    default: op
+  mixedAchievements.*:
+    description: All MixedAchievements Permissions.
+    default: op
+    children:
+      mixedAchievements.reload: true
