@@ -32,6 +32,10 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         System.out.println(pluginName + " successfully enabled");
     }
 
+    public void reload() {
+        initialize();
+    }
+
     private void initialize() {
         String urlPath = MixedAchievementsPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         String decodedPath = null;

@@ -10,5 +10,6 @@ public class MxAcCommand extends RootCommand {
     public MxAcCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
         super(mixedAchievementsManagerAccessor, "mx-ac", new HashMap<>());
         subCommandMap.put("achievements", new AchievementsCommand(mixedAchievementsManagerAccessor));
+        subCommandMap.put("reload", new AchievementsCommand(mixedAchievementsManagerAccessor));
     }
 }
