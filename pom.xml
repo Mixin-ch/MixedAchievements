@@ -6,7 +6,7 @@
 
     <groupId>ch.mixin</groupId>
     <artifactId>MixedAchievements</artifactId>
-    <version>1.0.1-p</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>MixedAchievements</name>

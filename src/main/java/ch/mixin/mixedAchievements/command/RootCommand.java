@@ -26,7 +26,7 @@ public abstract class RootCommand extends SubCommand implements CommandExecutor 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         MixedAchievementsPlugin plugin = mixedAchievementsData.getPlugin();
 
-        if (plugin.PluginFlawless) {
+        if (!plugin.PluginFlawless) {
             sender.sendMessage(ChatColor.RED + plugin.getPluginName() + " Plugin has Problems.");
             return true;
         }
