@@ -92,9 +92,4 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
     public String getRootDirectoryPath() {
         return rootDirectoryPath;
     }
-
-    @Deprecated
-    public boolean isActive() {
-        return PluginFlawless;
-    }
 }
