@@ -4,7 +4,7 @@ import ch.mixin.mixedAchievements.api.InfoAchievement;
 import ch.mixin.mixedAchievements.api.InfoAchievementStage;
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
 import ch.mixin.mixedAchievements.data.DataPlayerAchievement;
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -23,8 +23,8 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
     protected final AchievementItemSetup achievementItemSetup;
     protected HashMap<Integer, InventoryAchievementElement> inventoryAchievementElementMap;
 
-    public InventoryAchievementCategory(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, InventoryAchievementCategory parent, String inventoryName, AchievementItemSetup achievementItemSetup) {
-        super(mixedAchievementsManagerAccessor, parent);
+    public InventoryAchievementCategory(MixedAchievementsData mixedAchievementsData, InventoryAchievementCategory parent, String inventoryName, AchievementItemSetup achievementItemSetup) {
+        super(mixedAchievementsData, parent);
         this.inventoryName = inventoryName;
         this.achievementItemSetup = achievementItemSetup;
         inventoryAchievementElementMap = new HashMap<>();
@@ -65,7 +65,7 @@ public class InventoryAchievementCategory extends InventoryAchievementElement {
 
     private ItemStack makeItemLeafSlot(InventoryAchievementLeaf ial, Player player) {
         InfoAchievement infoAchievement = ial.getInfoAchievement();
-        DataPlayerAchievement dpa = mixedAchievementsManagerAccessor.getAchievementManager().fetchDataPlayerAchievement(infoAchievement.getSetId(), infoAchievement.getDataAchievement().getAchievementId(), player.getUniqueId().toString());
+        DataPlayerAchievement dpa = mixedAchievementsData.getAchievementManager().fetchDataPlayerAchievement(infoAchievement.getSetId(), infoAchievement.getDataAchievement().getAchievementId(), player.getUniqueId().toString());
         List<AchievementItemSetup> achievementItemSetupList = ial.getAchievementItemSetupList();
         int stageSize = achievementItemSetupList.size();
         int currentStage = dpa.getStage();

@@ -1,15 +1,15 @@
 package ch.mixin.mixedAchievements.event;
 
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class AchievementEventManager {
-    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    private final MixedAchievementsData mixedAchievementsData;
 
-    public AchievementEventManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
+    public AchievementEventManager(MixedAchievementsData mixedAchievementsData) {
+        this.mixedAchievementsData = mixedAchievementsData;
     }
 
     public void callAchievementCompletedEvent(AchievementCompletedEvent event) {

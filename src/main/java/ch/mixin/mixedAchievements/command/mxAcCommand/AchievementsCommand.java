@@ -1,7 +1,7 @@
 package ch.mixin.mixedAchievements.command.mxAcCommand;
 
 import ch.mixin.mixedAchievements.command.SubCommand;
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AchievementsCommand extends SubCommand {
-    public AchievementsCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        super(mixedAchievementsManagerAccessor);
+    public AchievementsCommand(MixedAchievementsData mixedAchievementsData) {
+        super(mixedAchievementsData);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class AchievementsCommand extends SubCommand {
         }
 
         Player player = (Player) sender;
-        mixedAchievementsManagerAccessor.getInventoryAchievementManager().open(player);
+        mixedAchievementsData.getInventoryAchievementManager().open(player);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package ch.mixin.mixedAchievements.inventory;
 
 import ch.mixin.mixedAchievements.blueprint.AchievementItemSetup;
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -26,13 +26,13 @@ public class InventoryAchievementManager {
         CancelItem.setAmount(1);
     }
 
-    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    private final MixedAchievementsData mixedAchievementsData;
     private final InventoryAchievementRoot inventoryAchievementRoot;
     private final HashMap<String, ActiveInventoryAchievement> playerActiveInventoryMap = new HashMap<>();
 
-    public InventoryAchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
-        inventoryAchievementRoot = new InventoryAchievementRoot(mixedAchievementsManagerAccessor);
+    public InventoryAchievementManager(MixedAchievementsData mixedAchievementsData) {
+        this.mixedAchievementsData = mixedAchievementsData;
+        inventoryAchievementRoot = new InventoryAchievementRoot(mixedAchievementsData);
         reload();
     }
 

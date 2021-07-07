@@ -9,34 +9,43 @@ import ch.mixin.mixedAchievements.event.AchievementEventManager;
 import ch.mixin.mixedAchievements.eventListener.EventListenerInitializer;
 import ch.mixin.mixedAchievements.inventory.InventoryAchievementManager;
 import ch.mixin.mixedAchievements.data.DataAchievementManager;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.naming.ServiceUnavailableException;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public final class MixedAchievementsPlugin extends JavaPlugin {
-    private boolean active = false;
     private String pluginName;
     private String rootDirectoryPath;
     private CustomConfig achievementsConfig;
-    private MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    private MixedAchievementsData mixedAchievementsData;
+
+    public boolean PluginFlawless;
 
     @Override
     public void onEnable() {
+        pluginName = getDescription().getName();
         System.out.println(pluginName + " enabling");
-        initialize();
-        active = true;
+        setup();
+        load();
+        PluginFlawless = true;
         System.out.println(pluginName + " successfully enabled");
     }
 
-    public void reload() {
-        initialize();
+    @Override
+    public void onDisable() {
+        System.out.println(pluginName + " disabling");
+        PluginFlawless = false;
+        mixedAchievementsData.getDataAchievementManager().saveToConfig();
+        System.out.println(pluginName + " successfully disabled");
     }
 
-    private void initialize() {
+    private void setup() {
         String urlPath = MixedAchievementsPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         String decodedPath = null;
 
@@ -47,62 +56,33 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
         }
 
         rootDirectoryPath = decodedPath.substring(0, decodedPath.lastIndexOf("/"));
-        pluginName = getDescription().getName();
         achievementsConfig = new CustomConfig(this, "achievements");
 
-        mixedAchievementsManagerAccessor = new MixedAchievementsManagerAccessor(this);
-        mixedAchievementsManagerAccessor.setAchievementManager(new AchievementManager(mixedAchievementsManagerAccessor));
-        mixedAchievementsManagerAccessor.setDataAchievementManager(new DataAchievementManager(mixedAchievementsManagerAccessor, achievementsConfig));
-        mixedAchievementsManagerAccessor.setInventoryAchievementManager(new InventoryAchievementManager(mixedAchievementsManagerAccessor));
-        mixedAchievementsManagerAccessor.setAchievementEventManager(new AchievementEventManager(mixedAchievementsManagerAccessor));
+        mixedAchievementsData = new MixedAchievementsData(this);
+        mixedAchievementsData.setAchievementManager(new AchievementManager(mixedAchievementsData));
+        mixedAchievementsData.setDataAchievementManager(new DataAchievementManager(mixedAchievementsData, achievementsConfig));
+        mixedAchievementsData.setInventoryAchievementManager(new InventoryAchievementManager(mixedAchievementsData));
+        mixedAchievementsData.setAchievementEventManager(new AchievementEventManager(mixedAchievementsData));
 
-        EventListenerInitializer.setupEventListener(mixedAchievementsManagerAccessor);
-        CommandInitializer.setupCommands(mixedAchievementsManagerAccessor);
+        EventListenerInitializer.setupEventListener(mixedAchievementsData);
+        CommandInitializer.setupCommands(mixedAchievementsData);
     }
 
-    @Override
-    public void onDisable() {
-        System.out.println(pluginName + " disabling");
-        active = false;
-        mixedAchievementsManagerAccessor.getDataAchievementManager().saveToConfig();
-        System.out.println(pluginName + " successfully disabled");
+    public void reload() {
+        load();
+    }
+
+    private void load() {
+        achievementsConfig.reload();
     }
 
     public AchievementApi makeAchievementSet(BlueprintAchievementSet blueprintAchievementSet) throws ServiceUnavailableException {
-        if (!active)
+        if (!PluginFlawless)
             throw new ServiceUnavailableException("Plugin is inactive.");
 
-        AchievementManager achievementManager = mixedAchievementsManagerAccessor.getAchievementManager();
+        AchievementManager achievementManager = mixedAchievementsData.getAchievementManager();
         achievementManager.integrateAchievementSet(blueprintAchievementSet);
         return new AchievementApi(blueprintAchievementSet.getSetId(), achievementManager);
-    }
-
-    private ArrayList<String> readFile(File file) {
-        ArrayList<String> text = new ArrayList<>();
-        try {
-            Scanner myReader = new Scanner(file);
-            while (myReader.hasNextLine()) {
-                text.add(myReader.nextLine());
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return text;
-    }
-
-    private void writeFile(File file, String text) {
-        try {
-            FileWriter myWriter = new FileWriter(file);
-            myWriter.write(text);
-            myWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
     public String getPluginName() {
@@ -111,5 +91,10 @@ public final class MixedAchievementsPlugin extends JavaPlugin {
 
     public String getRootDirectoryPath() {
         return rootDirectoryPath;
+    }
+
+    @Deprecated
+    public boolean isActive() {
+        return PluginFlawless;
     }
 }

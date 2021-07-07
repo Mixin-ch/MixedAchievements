@@ -1,7 +1,7 @@
 package ch.mixin.mixedAchievements.command.mxAcCommand;
 
 import ch.mixin.mixedAchievements.command.SubCommand;
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReloadCommand extends SubCommand {
-    public ReloadCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        super(mixedAchievementsManagerAccessor);
+    public ReloadCommand(MixedAchievementsData mixedAchievementsData) {
+        super(mixedAchievementsData);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ReloadCommand extends SubCommand {
             return;
         }
 
-        mixedAchievementsManagerAccessor.getPlugin().reload();
+        mixedAchievementsData.getPlugin().reload();
         sender.sendMessage(ChatColor.GREEN + "Successfully reloaded MixedAchievements.");
     }
 

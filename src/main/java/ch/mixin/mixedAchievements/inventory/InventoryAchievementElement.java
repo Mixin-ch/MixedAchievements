@@ -1,13 +1,13 @@
 package ch.mixin.mixedAchievements.inventory;
 
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 
 public abstract class InventoryAchievementElement {
-    protected final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    protected final MixedAchievementsData mixedAchievementsData;
     protected final InventoryAchievementCategory parent;
 
-    public InventoryAchievementElement(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor, InventoryAchievementCategory parent) {
-        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
+    public InventoryAchievementElement(MixedAchievementsData mixedAchievementsData, InventoryAchievementCategory parent) {
+        this.mixedAchievementsData = mixedAchievementsData;
         this.parent = parent;
     }
 

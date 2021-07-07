@@ -7,7 +7,7 @@ import ch.mixin.mixedAchievements.data.DataAchievementSet;
 import ch.mixin.mixedAchievements.data.DataPlayerAchievement;
 import ch.mixin.mixedAchievements.event.AchievementCompletedEvent;
 import ch.mixin.mixedAchievements.inventory.*;
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -16,16 +16,16 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 public class AchievementManager {
-    private final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    private final MixedAchievementsData mixedAchievementsData;
 
     private final TreeMap<String, InfoAchievementSet> infoAchievementSetMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public AchievementManager(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
+    public AchievementManager(MixedAchievementsData mixedAchievementsData) {
+        this.mixedAchievementsData = mixedAchievementsData;
     }
 
     public void integrateAchievementSet(BlueprintAchievementSet blueprintAchievementSet) {
-        InventoryAchievementManager inventoryAchievementManager = mixedAchievementsManagerAccessor.getInventoryAchievementManager();
+        InventoryAchievementManager inventoryAchievementManager = mixedAchievementsData.getInventoryAchievementManager();
         String setId = blueprintAchievementSet.getSetId();
 
         if (infoAchievementSetMap.containsKey(setId))
@@ -35,7 +35,7 @@ public class AchievementManager {
         infoAchievementSetMap.put(setId, infoAchievementSet);
 
         InventoryAchievementRoot inventoryAchievementRoot = inventoryAchievementManager.getAchievementRootInventory();
-        InventoryAchievementSet inventoryAchievementSet = new InventoryAchievementSet(mixedAchievementsManagerAccessor, inventoryAchievementRoot, setId, blueprintAchievementSet.getInventoryName(), blueprintAchievementSet.getAchievementItemSetup());
+        InventoryAchievementSet inventoryAchievementSet = new InventoryAchievementSet(mixedAchievementsData, inventoryAchievementRoot, setId, blueprintAchievementSet.getInventoryName(), blueprintAchievementSet.getAchievementItemSetup());
         inventoryAchievementRoot.getInventoryAchievementSetMap().put(setId, inventoryAchievementSet);
 
         integrateAchievementCategory(blueprintAchievementSet, infoAchievementSet, inventoryAchievementSet, setId);
@@ -48,7 +48,7 @@ public class AchievementManager {
 
             if (blueprintElement instanceof BlueprintAchievementCategory) {
                 BlueprintAchievementCategory subBlueprintFolder = (BlueprintAchievementCategory) blueprintElement;
-                InventoryAchievementCategory subInventoryFolder = new InventoryAchievementCategory(mixedAchievementsManagerAccessor, inventoryAchievementCategory, subBlueprintFolder.getInventoryName(), subBlueprintFolder.getAchievementItemSetup());
+                InventoryAchievementCategory subInventoryFolder = new InventoryAchievementCategory(mixedAchievementsData, inventoryAchievementCategory, subBlueprintFolder.getInventoryName(), subBlueprintFolder.getAchievementItemSetup());
                 inventoryAchievementCategory.getInventoryAchievementElementMap().put(slot, subInventoryFolder);
                 integrateAchievementCategory(subBlueprintFolder, infoAchievementSet, subInventoryFolder, setId);
             } else {
@@ -59,7 +59,7 @@ public class AchievementManager {
 
     private void integrateAchievementLeaf(InventoryAchievementCategory inventoryAchievementCategory, BlueprintAchievementLeaf blueprintAchievementLeaf, InfoAchievementSet infoAchievementSet, String setId, int slot) {
         String achievementId = blueprintAchievementLeaf.getAchievementId();
-        DataAchievementRoot dataAchievementRoot = mixedAchievementsManagerAccessor.getDataAchievementManager().getAchievementDataRoot();
+        DataAchievementRoot dataAchievementRoot = mixedAchievementsData.getDataAchievementManager().getAchievementDataRoot();
         DataAchievementSet dataAchievementSet = dataAchievementRoot.getDataAchievementSetMap().get(setId);
 
         if (dataAchievementSet == null) {
@@ -97,7 +97,7 @@ public class AchievementManager {
                 achievementItemSetupList.add(blueprintAchievementStage.getAchievementItemSetup());
             }
 
-            InventoryAchievementLeaf inventoryAchievementLeaf = new InventoryAchievementLeaf(mixedAchievementsManagerAccessor, inventoryAchievementCategory, infoAchievement, achievementItemSetupList);
+            InventoryAchievementLeaf inventoryAchievementLeaf = new InventoryAchievementLeaf(mixedAchievementsData, inventoryAchievementCategory, infoAchievement, achievementItemSetupList);
             infoAchievement.setInventoryAchievementLeaf(inventoryAchievementLeaf);
         }
 
@@ -253,7 +253,7 @@ public class AchievementManager {
     }
 
     private void achievementCompleted(InfoAchievement infoAchievement, String playerId) {
-        Player player = mixedAchievementsManagerAccessor.getPlugin().getServer().getPlayer(UUID.fromString(playerId));
+        Player player = mixedAchievementsData.getPlugin().getServer().getPlayer(UUID.fromString(playerId));
 
         if (player == null)
             return;
@@ -263,6 +263,6 @@ public class AchievementManager {
         String message = "Achievement completed: " + name;
 
         AchievementCompletedEvent event = new AchievementCompletedEvent(player, infoAchievement.getSetId(), infoAchievement.getAchievementId(), message);
-        mixedAchievementsManagerAccessor.getAchievementEventManager().callAchievementCompletedEvent(event);
+        mixedAchievementsData.getAchievementEventManager().callAchievementCompletedEvent(event);
     }
 }

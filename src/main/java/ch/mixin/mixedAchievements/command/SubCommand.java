@@ -1,15 +1,15 @@
 package ch.mixin.mixedAchievements.command;
 
-import ch.mixin.mixedAchievements.main.MixedAchievementsManagerAccessor;
+import ch.mixin.mixedAchievements.main.MixedAchievementsData;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
 public abstract class SubCommand {
-    protected final MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor;
+    protected final MixedAchievementsData mixedAchievementsData;
 
-    public SubCommand(MixedAchievementsManagerAccessor mixedAchievementsManagerAccessor) {
-        this.mixedAchievementsManagerAccessor = mixedAchievementsManagerAccessor;
+    public SubCommand(MixedAchievementsData mixedAchievementsData) {
+        this.mixedAchievementsData = mixedAchievementsData;
     }
 
     public abstract SubCommand fetchCommand(List<String> arguments);
